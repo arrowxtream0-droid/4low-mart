@@ -1,48 +1,93 @@
 
-// 4LOW-MART - Main JavaScript
+const cart = [];
 
-// Search functionality
-const searchInput = document.querySelector('.search-box input');
-const searchButton = document.querySelector('.search-box button');
+const cartCount = document.querySelector(".nav a:last-child");
+const searchInput = document.querySelector(".search-box input");
+const searchButton = document.querySelector(".search-box button");
 
-function searchProducts() {
-  const searchValue = searchInput.value.trim().toLowerCase();
-  const products = document.querySelectorAll('.product-card');
-
-  if (!searchValue) {
-    alert('Please enter a product name.');
-    return;
+const products = [
+  {
+    name: "Wireless Headphones",
+    price: 1499,
+    icon: "🎧"
+  },
+  {
+    name: "Smart Watch",
+    price: 1999,
+    icon: "⌚"
+  },
+  {
+    name: "Sports Shoes",
+    price: 2499,
+    icon: "👟"
+  },
+  {
+    name: "Everyday Backpack",
+    price: 999,
+    icon: "🎒"
   }
+];
 
-  let found = 0;
+// Add cart buttons to product cards
+document.querySelectorAll(".product-card").forEach((card, index) => {
+  const product = products[index];
 
-  products.forEach(product => {
-    const productName = product.querySelector('h3').textContent.toLowerCase();
+  if (!product) return;
 
-    if (productName.includes(searchValue)) {
-      product.style.display = 'block';
-      found++;
+  const price = document.createElement("p");
+  price.textContent = "₹" + product.price.toLocaleString("en-IN");
+
+  const button = document.createElement("button");
+  button.textContent = "Add to Cart";
+  button.className = "add-cart-button";
+
+  button.addEventListener("click", () => {
+    const existing = cart.find(item => item.name === product.name);
+
+    if (existing) {
+      existing.quantity++;
     } else {
-      product.style.display = 'none';
+      cart.push({ ...product, quantity: 1 });
     }
+
+    updateCart();
+    button.textContent = "Added ✓";
+
+    setTimeout(() => {
+      button.textContent = "Add to Cart";
+    }, 1000);
   });
 
-  document.querySelector('#products').scrollIntoView({
-    behavior: 'smooth'
-  });
+  card.appendChild(price);
+  card.appendChild(button);
+});
 
-  if (found === 0) {
-    alert('No matching products found. Try another search.');
-  }
+// Update cart count
+function updateCart() {
+  const total = cart.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
+  cartCount.textContent = `Cart (${total})`;
 }
 
-searchButton.addEventListener('click', searchProducts);
+// Search products
+function searchProducts() {
+  const query = searchInput.value.toLowerCase().trim();
 
-searchInput.addEventListener('keydown', function(event) {
-  if (event.key === 'Enter') {
+  document.querySelectorAll(".product-card").forEach(card => {
+    const name = card.querySelector("h3").textContent.toLowerCase();
+
+    card.style.display = name.includes(query) ? "" : "none";
+  });
+}
+
+searchButton.addEventListener("click", searchProducts);
+
+searchInput.addEventListener("keydown", event => {
+  if (event.key === "Enter") {
     searchProducts();
   }
 });
 
-// 4LOW-MART welcome message
-console.log('Welcome to 4LOW-MART Marketplace!');
