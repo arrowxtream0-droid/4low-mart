@@ -137,7 +137,7 @@ const products = [
       cartCount.textContent = `Cart (${totalQuantity})`;
     }
 
-    cartItems.replaceChildren();
+  if (cartItems) cartItems.replaceChildren();
 
     if (cart.length === 0) {
       const empty = document.createElement("p");
@@ -194,7 +194,9 @@ const products = [
       cartItems.appendChild(row);
     });
 
-    cartTotal.textContent = "₹" + totalPrice.toLocaleString("en-IN");
+  if (cartTotal) {
+  cartTotal.textContent = "₹" + totalPrice.toLocaleString("en-IN");
+  }
 
     localStorage.setItem("4lowMartCart", JSON.stringify(cart));
   }
@@ -252,7 +254,8 @@ const products = [
 
   // Search
   function searchProducts() {
-    const query = searchInput.value.trim().toLowerCase();
+    if (!searchInput) return;
+const query = searchInput.value.trim().toLowerCase();
 
     cards.forEach(card => {
       const name = card.querySelector("h3").textContent.toLowerCase();
