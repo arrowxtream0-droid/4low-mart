@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Discover something beyond ordinary at 4low-mart.">
+  <title>4LOW-MART | Less Ordinary</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #080808;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 7%;
+      border-bottom: 1px solid #252525;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    nav a {
+      color: #aaa;
+      text-decoration: none;
+      margin-left: 18px;
+      font-size: 12px;
+    }
+
+    .hero {
+      min-height: 75vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 50px 20px;
+      background: radial-gradient(circle, #303030, #080808 65%);
+    }
+
+    .tag {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #aaa;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: clamp(55px, 12vw, 100px);
+      line-height: .9;
+      letter-spacing: -5px;
+      font-weight: 900;
+    }
+
+    .hero p {
+      color: #aaa;
+      max-width: 350px;
+      line-height: 1.7;
+      margin: 25px 0;
+    }
+
+    .btn {
+      background: white;
+      color: black;
+      text-decoration: none;
+      padding: 15px 28px;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .section {
+      padding: 75px 7%;
+      text-align: center;
+    }
+
+    .section h2 {
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    .muted {
+      color: #888;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 35px;
+    }
+
+    .card {
+      border: 1px solid #333;
+      padding: 35px 12px;
+      background: #111;
+    }
+
+    .card h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: #888;
+      font-size: 12px;
+    }
+
+    .coming {
+      margin-top: 65px;
+      border: 1px solid #333;
+      padding: 45px 15px;
+    }
+
+    footer {
+      border-top: 1px solid #292929;
+      padding: 25px 7%;
+      display: flex;
+      justify-content: space-between;
+      color: #777;
+      font-size: 12px;
+    }
+
+    @media(max-width: 600px) {
+      nav a {
+        margin-left: 9px;
+        font-size: 10px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        letter-spacing: -3px;
+      }
+
+      footer {
+        gap: 12px;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">4LOW-MART.</div>
+  <nav>
+    <a href="#home">HOME</a>
+    <a href="#shop">SHOP</a>
+    <a href="#about">ABOUT</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" id="home">
+    <div class="tag">THE NEW WAY TO DISCOVER</div>
+
+    <h1>LESS<br>ORDINARY.</h1>
+
+    <p>
+      Discover thoughtfully selected products
+      designed to make everyday life better.
+    </p>
+
+    <a href="#shop" class="btn">EXPLORE COLLECTION ↗</a>
+  </section>
+
+  <section class="section" id="shop">
+    <h2>Explore Categories</h2>
+    <p class="muted">Something different is coming.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>TECH ESSENTIALS</h3>
+        <p>Everyday technology</p>
+      </div>
+
+      <div class="card">
+        <h3>DESK & LIVING</h3>
+        <p>Upgrade your space</p>
+      </div>
+
+      <div class="card">
+        <h3>DAILY ESSENTIALS</h3>
+        <p>Made for everyday life</p>
+      </div>
+    </div>
+
+    <div class="coming">
+      <h2>COMING SOON.</h2>
+      <p class="muted">
+        Our first collection is in development.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <h2>Less Ordinary. More You.</h2>
+    <p class="muted">
+      4low-mart is building a better way to discover
+      useful and thoughtfully selected products.
+    </p>
+  </section>
+</main>
+
+<footer>
+  <span>© 2026 4LOW-MART.</span>
+  <span>LESS ORDINARY. MORE YOU.</span>
+</footer>
+
+</body>
+</html>
