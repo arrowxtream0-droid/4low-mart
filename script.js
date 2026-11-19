@@ -17,19 +17,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkoutButton = document.querySelector("#checkout-button");
 
   const products = [
-    { name: "Wireless Headphones", price: 1499 },
-    { name: "Smart Watch", price: 1999 },
-    { name: "Sports Shoes", price: 2499 },
-    { name: "Everyday Backpack", price: 999 }
+    {
+      name: "Wireless Headphones",
+      price: 1499,
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
+    },
+    {
+      name: "Smart Watch",
+      price: 1999,
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80"
+    },
+    {
+      name: "Sports Shoes",
+      price: 2499,
+      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
+    },
+    {
+      name: "Everyday Backpack",
+      price: 999,
+      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80"
+    }
   ];
 
-  // Add product prices and buttons
+  // Add product images, prices and buttons
   cards.forEach((card, index) => {
     const product = products[index];
     if (!product) return;
 
-    const image = card.querySelector(".product-image");
-    product.icon = image ? image.textContent.trim() : "🛍️";
+    const imageBox = card.querySelector(".product-image");
+
+    if (imageBox) {
+      const img = document.createElement("img");
+      img.src = product.image;
+      img.alt = product.name;
+      img.loading = "lazy";
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "contain";
+      imageBox.replaceChildren(img);
+    }
 
     if (!card.querySelector(".product-price")) {
       const price = document.createElement("p");
@@ -69,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCart();
   }
 
-  // Render cart contents
+  // Display cart
   function renderCart() {
     const totalQuantity = cart.reduce(
       (sum, item) => sum + item.quantity, 0
@@ -96,9 +122,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const row = document.createElement("div");
       row.className = "cart-product";
 
-      const icon = document.createElement("div");
-      icon.className = "cart-product-icon";
-      icon.textContent = item.icon;
+      const img = document.createElement("img");
+      img.className = "cart-product-icon";
+      img.src = item.image;
+      img.alt = item.name;
+      img.style.width = "85px";
+      img.style.height = "85px";
+      img.style.objectFit = "contain";
+      img.style.borderRadius = "8px";
+      img.style.background = "#222";
 
       const details = document.createElement("div");
       details.className = "cart-product-details";
@@ -130,14 +162,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       controls.append(minus, quantity, plus);
       details.append(name, price, controls, remove);
-      row.append(icon, details);
+      row.append(img, details);
       cartItems.appendChild(row);
     });
 
     cartTotal.textContent = "₹" + totalPrice.toLocaleString("en-IN");
   }
 
-  // Change quantity
   function changeQuantity(name, amount) {
     const item = cart.find(product => product.name === name);
     if (!item) return;
@@ -152,7 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCart();
   }
 
-  // Remove item
   function removeItem(name) {
     const index = cart.findIndex(item => item.name === name);
 
@@ -163,13 +193,11 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCart();
   }
 
-  // Open cart
   function openCart() {
     cartDrawer.classList.add("active");
     cartOverlay.classList.add("active");
   }
 
-  // Close cart
   function closeCart() {
     cartDrawer.classList.remove("active");
     cartOverlay.classList.remove("active");
@@ -184,6 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (cartClose) cartClose.addEventListener("click", closeCart);
   if (cartOverlay) cartOverlay.addEventListener("click", closeCart);
+
   if (continueShopping) {
     continueShopping.addEventListener("click", closeCart);
   }
@@ -192,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Escape") closeCart();
   });
 
-  // Product search
+  // Search
   function searchProducts() {
     const query = searchInput.value.trim().toLowerCase();
 
@@ -213,17 +242,15 @@ document.addEventListener("DOMContentLoaded", () => {
     searchButton.addEventListener("click", searchProducts);
   }
 
-  // Checkout is not connected to a payment system yet
   if (checkoutButton) {
     checkoutButton.addEventListener("click", () => {
       if (cart.length === 0) {
         alert("Your cart is empty!");
       } else {
-        alert("Checkout will be available when we connect our order and payment system.");
+        alert("Checkout will be available when our payment system is connected.");
       }
     });
   }
 
   renderCart();
 });
-                  
