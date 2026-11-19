@@ -31,6 +31,41 @@ try {
   const checkoutButton = document.querySelector("#checkout-button");
 
   const products = [
+const products = [
+  {
+    name: "Wireless Headphones",
+    price: 1499,
+    originalPrice: 2499,
+    rating: 4.5,
+    discount: "40% OFF",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    name: "Smart Watch",
+    price: 1999,
+    originalPrice: 2999,
+    rating: 4.3,
+    discount: "33% OFF",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    name: "Sports Shoes",
+    price: 2499,
+    originalPrice: 3499,
+    rating: 4.6,
+    discount: "29% OFF",
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    name: "Everyday Backpack",
+    price: 999,
+    originalPrice: 1499,
+    rating: 4.2,
+    discount: "33% OFF",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80"
+  }
+];
+  
     {
       name: "Wireless Headphones",
       price: 1499,
