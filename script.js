@@ -30,7 +30,7 @@ try {
   const continueShopping = document.querySelector("#continue-shopping");
   const checkoutButton = document.querySelector("#checkout-button");
 
-  const products = [
+  
 const products = [
   {
     name: "Wireless Headphones",
