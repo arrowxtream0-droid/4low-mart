@@ -225,7 +225,7 @@ cartItems.replaceChildren();
     renderCart();
   }
 
-  function openCart() {
+    function openCart() {
     cartDrawer.classList.add("active");
     cartOverlay.classList.add("active");
   }
@@ -233,13 +233,6 @@ cartItems.replaceChildren();
   function closeCart() {
     cartDrawer.classList.remove("active");
     cartOverlay.classList.remove("active");
-  }
-
-  if (cartToggle) {
-    cartToggle.addEventListener("click", event => {
-      event.preventDefault();
-      openCart();
-    });
   }
 
   if (cartClose) cartClose.addEventListener("click", closeCart);
