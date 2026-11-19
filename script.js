@@ -137,7 +137,7 @@ const products = [
       cartCount.textContent = `Cart (${totalQuantity})`;
     }
 
-  if (!cartItems) return;
+if (!cartItems) return;
 cartItems.replaceChildren();
 
     if (cart.length === 0) {
