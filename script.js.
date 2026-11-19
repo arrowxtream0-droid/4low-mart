@@ -1,28 +1,48 @@
 
-/* =================================
-   4LOW-MART — WEBSITE INTERACTIONS
-================================= */
+// 4LOW-MART - Main JavaScript
 
-// Smooth navigation
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener('click', function(event) {
-    const target = document.querySelector(this.getAttribute('href'));
+// Search functionality
+const searchInput = document.querySelector('.search-box input');
+const searchButton = document.querySelector('.search-box button');
 
-    if (target) {
-      event.preventDefault();
-      target.scrollIntoView({
-        behavior: 'smooth'
-      });
+function searchProducts() {
+  const searchValue = searchInput.value.trim().toLowerCase();
+  const products = document.querySelectorAll('.product-card');
+
+  if (!searchValue) {
+    alert('Please enter a product name.');
+    return;
+  }
+
+  let found = 0;
+
+  products.forEach(product => {
+    const productName = product.querySelector('h3').textContent.toLowerCase();
+
+    if (productName.includes(searchValue)) {
+      product.style.display = 'block';
+      found++;
+    } else {
+      product.style.display = 'none';
     }
   });
-});
 
-// Footer year
-const footerYear = document.querySelector('footer span');
+  document.querySelector('#products').scrollIntoView({
+    behavior: 'smooth'
+  });
 
-if (footerYear) {
-  footerYear.textContent =
-    `© ${new Date().getFullYear()} 4LOW-MART.`;
+  if (found === 0) {
+    alert('No matching products found. Try another search.');
+  }
 }
 
-console.log("4LOW-MART website loaded successfully.");
+searchButton.addEventListener('click', searchProducts);
+
+searchInput.addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') {
+    searchProducts();
+  }
+});
+
+// 4LOW-MART welcome message
+console.log('Welcome to 4LOW-MART Marketplace!');
