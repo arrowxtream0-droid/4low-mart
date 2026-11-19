@@ -2,6 +2,20 @@
 document.addEventListener("DOMContentLoaded", () => {
   const cart = [];
 
+try {
+  const savedCart = localStorage.getItem("4lowMartCart");
+
+  if (savedCart) {
+    const parsedCart = JSON.parse(savedCart);
+
+    if (Array.isArray(parsedCart)) {
+      cart.push(...parsedCart);
+    }
+  }
+} catch (error) {
+  localStorage.removeItem("4lowMartCart");
+}
+
   const cards = document.querySelectorAll(".product-card");
   const searchInput = document.querySelector(".search-box input");
   const searchButton = document.querySelector(".search-box button");
