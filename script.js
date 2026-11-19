@@ -137,7 +137,8 @@ const products = [
       cartCount.textContent = `Cart (${totalQuantity})`;
     }
 
-  if (cartItems) cartItems.replaceChildren();
+  if (!cartItems) return;
+cartItems.replaceChildren();
 
     if (cart.length === 0) {
       const empty = document.createElement("p");
