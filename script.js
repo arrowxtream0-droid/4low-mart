@@ -6,32 +6,17 @@ const searchInput = document.querySelector(".search-box input");
 const searchButton = document.querySelector(".search-box button");
 
 const products = [
-  {
-    name: "Wireless Headphones",
-    price: 1499,
-    icon: "🎧"
-  },
-  {
-    name: "Smart Watch",
-    price: 1999,
-    icon: "⌚"
-  },
-  {
-    name: "Sports Shoes",
-    price: 2499,
-    icon: "👟"
-  },
-  {
-    name: "Everyday Backpack",
-    price: 999,
-    icon: "🎒"
-  }
+  { name: "Wireless Headphones", price: 1499, icon: "🎧" },
+  { name: "Smart Watch", price: 1999, icon: "⌚" },
+  { name: "Sports Shoes", price: 2499, icon: "👟" },
+  { name: "Everyday Backpack", price: 999, icon: "🎒" }
 ];
 
-// Add cart buttons to product cards
-document.querySelectorAll(".product-card").forEach((card, index) => {
-  const product = products[index];
+const cards = document.querySelectorAll(".product-card");
 
+// Add prices and cart buttons
+cards.forEach((card, index) => {
+  const product = products[index];
   if (!product) return;
 
   const price = document.createElement("p");
@@ -42,7 +27,9 @@ document.querySelectorAll(".product-card").forEach((card, index) => {
   button.className = "add-cart-button";
 
   button.addEventListener("click", () => {
-    const existing = cart.find(item => item.name === product.name);
+    const existing = cart.find(
+      item => item.name === product.name
+    );
 
     if (existing) {
       existing.quantity++;
@@ -62,32 +49,45 @@ document.querySelectorAll(".product-card").forEach((card, index) => {
   card.appendChild(button);
 });
 
-// Update cart count
+// Update cart quantity
 function updateCart() {
   const total = cart.reduce(
-    (sum, item) => sum + item.quantity,
-    0
+    (sum, item) => sum + item.quantity, 0
   );
 
-  cartCount.textContent = `Cart (${total})`;
+  if (cartCount) {
+    cartCount.textContent = `Cart (${total})`;
+  }
 }
 
 // Search products
 function searchProducts() {
-  const query = searchInput.value.toLowerCase().trim();
+  const query = searchInput.value.trim().toLowerCase();
 
-  document.querySelectorAll(".product-card").forEach(card => {
-    const name = card.querySelector("h3").textContent.toLowerCase();
+  cards.forEach(card => {
+    const name = card.querySelector("h3")
+      .textContent.toLowerCase();
 
     card.style.display = name.includes(query) ? "" : "none";
   });
 }
 
-searchButton.addEventListener("click", searchProducts);
+// Search while typing
+if (searchInput) {
+  searchInput.addEventListener("input", searchProducts);
 
-searchInput.addEventListener("keydown", event => {
-  if (event.key === "Enter") {
+  searchInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchProducts();
+    }
+  });
+}
+
+// Search button
+if (searchButton) {
+  searchButton.addEventListener("click", event => {
+    event.preventDefault();
     searchProducts();
-  }
-});
-
+  });
+      }
