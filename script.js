@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cart.length === 0) {
         alert("Your cart is empty!");
       } else {
-        alert("Checkout will be available when our payment system is connected.");
+        window.location.href = "checkout.html";
       }
     });
   }
