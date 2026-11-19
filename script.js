@@ -1,21 +1,19 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  const cart = [];
+  // CART DATA
+  let cart = [];
 
-try {
-  const savedCart = localStorage.getItem("4lowMartCart");
-
-  if (savedCart) {
-    const parsedCart = JSON.parse(savedCart);
-
-    if (Array.isArray(parsedCart)) {
-      cart.push(...parsedCart);
+  try {
+    const savedCart = localStorage.getItem("4lowMartCart");
+    if (savedCart) {
+      const parsedCart = JSON.parse(savedCart);
+      if (Array.isArray(parsedCart)) cart = parsedCart;
     }
+  } catch (error) {
+    localStorage.removeItem("4lowMartCart");
   }
-} catch (error) {
-  localStorage.removeItem("4lowMartCart");
-}
 
+  // PAGE ELEMENTS
   const cards = document.querySelectorAll(".product-card");
   const searchInput = document.querySelector(".search-box input");
   const searchButton = document.querySelector(".search-box button");
@@ -30,44 +28,43 @@ try {
   const continueShopping = document.querySelector("#continue-shopping");
   const checkoutButton = document.querySelector("#checkout-button");
 
-  
-const products = [
-  {
-    name: "Wireless Headphones",
-    price: 1499,
-    originalPrice: 2499,
-    rating: 4.5,
-    discount: "40% OFF",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
-  },
-  {
-    name: "Smart Watch",
-    price: 1999,
-    originalPrice: 2999,
-    rating: 4.3,
-    discount: "33% OFF",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80"
-  },
-  {
-    name: "Sports Shoes",
-    price: 2499,
-    originalPrice: 3499,
-    rating: 4.6,
-    discount: "29% OFF",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
-  },
-  {
-    name: "Everyday Backpack",
-    price: 999,
-    originalPrice: 1499,
-    rating: 4.2,
-    discount: "33% OFF",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80"
-  }
-];
-  
+  // PRODUCTS
+  const products = [
+    {
+      name: "Wireless Headphones",
+      price: 1499,
+      originalPrice: 2499,
+      rating: 4.5,
+      discount: "40% OFF",
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
+    },
+    {
+      name: "Smart Watch",
+      price: 1999,
+      originalPrice: 2999,
+      rating: 4.3,
+      discount: "33% OFF",
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80"
+    },
+    {
+      name: "Sports Shoes",
+      price: 2499,
+      originalPrice: 3499,
+      rating: 4.6,
+      discount: "29% OFF",
+      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
+    },
+    {
+      name: "Everyday Backpack",
+      price: 999,
+      originalPrice: 1499,
+      rating: 4.2,
+      discount: "33% OFF",
+      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80"
+    }
+  ];
 
-  // Add product images, prices and buttons
+  // ADD PRODUCT DETAILS
   cards.forEach((card, index) => {
     const product = products[index];
     if (!product) return;
@@ -110,7 +107,12 @@ const products = [
     }
   });
 
-  // Add product to cart
+  // SAVE CART
+  function saveCart() {
+    localStorage.setItem("4lowMartCart", JSON.stringify(cart));
+  }
+
+  // ADD TO CART
   function addToCart(product) {
     const existing = cart.find(item => item.name === product.name);
 
@@ -123,7 +125,7 @@ const products = [
     renderCart();
   }
 
-  // Display cart
+  // RENDER CART
   function renderCart() {
     const totalQuantity = cart.reduce(
       (sum, item) => sum + item.quantity, 0
@@ -137,8 +139,16 @@ const products = [
       cartCount.textContent = `Cart (${totalQuantity})`;
     }
 
-if (!cartItems) return;
-cartItems.replaceChildren();
+    if (cartTotal) {
+      cartTotal.textContent = "₹" + totalPrice.toLocaleString("en-IN");
+    }
+
+    if (!cartItems) {
+      saveCart();
+      return;
+    }
+
+    cartItems.replaceChildren();
 
     if (cart.length === 0) {
       const empty = document.createElement("p");
@@ -195,12 +205,10 @@ cartItems.replaceChildren();
       cartItems.appendChild(row);
     });
 
-  if (cartTotal) {
-  cartTotal.textContent = "₹" + totalPrice.toLocaleString("en-IN");
+    saveCart();
   }
 
-    localStorage.setItem("4lowMartCart", JSON.stringify(cart));
-  }
+  // CHANGE QUANTITY
   function changeQuantity(name, amount) {
     const item = cart.find(product => product.name === name);
     if (!item) return;
@@ -215,28 +223,38 @@ cartItems.replaceChildren();
     renderCart();
   }
 
+  // REMOVE PRODUCT
   function removeItem(name) {
-    const index = cart.findIndex(item => item.name === name);
-
-    if (index !== -1) {
-      cart.splice(index, 1);
-    }
-
+    cart = cart.filter(item => item.name !== name);
     renderCart();
   }
 
-    function openCart() {
+  // OPEN AND CLOSE CART
+  function openCart() {
+    if (!cartDrawer || !cartOverlay) return;
     cartDrawer.classList.add("active");
     cartOverlay.classList.add("active");
   }
 
   function closeCart() {
-    cartDrawer.classList.remove("active");
-    cartOverlay.classList.remove("active");
+    if (cartDrawer) cartDrawer.classList.remove("active");
+    if (cartOverlay) cartOverlay.classList.remove("active");
   }
 
-  if (cartClose) cartClose.addEventListener("click", closeCart);
-  if (cartOverlay) cartOverlay.addEventListener("click", closeCart);
+  if (cartToggle) {
+    cartToggle.addEventListener("click", event => {
+      event.preventDefault();
+      openCart();
+    });
+  }
+
+  if (cartClose) {
+    cartClose.addEventListener("click", closeCart);
+  }
+
+  if (cartOverlay) {
+    cartOverlay.addEventListener("click", closeCart);
+  }
 
   if (continueShopping) {
     continueShopping.addEventListener("click", closeCart);
@@ -246,19 +264,22 @@ cartItems.replaceChildren();
     if (event.key === "Escape") closeCart();
   });
 
-  // Search
+  // SEARCH PRODUCTS
   function searchProducts() {
     if (!searchInput) return;
-const query = searchInput.value.trim().toLowerCase();
+
+    const query = searchInput.value.trim().toLowerCase();
 
     cards.forEach(card => {
-      const name = card.querySelector("h3").textContent.toLowerCase();
+      const heading = card.querySelector("h3");
+      const name = heading ? heading.textContent.toLowerCase() : "";
       card.style.display = name.includes(query) ? "" : "none";
     });
   }
 
   if (searchInput) {
     searchInput.addEventListener("input", searchProducts);
+
     searchInput.addEventListener("keydown", event => {
       if (event.key === "Enter") searchProducts();
     });
@@ -268,6 +289,7 @@ const query = searchInput.value.trim().toLowerCase();
     searchButton.addEventListener("click", searchProducts);
   }
 
+  // CHECKOUT
   if (checkoutButton) {
     checkoutButton.addEventListener("click", () => {
       if (cart.length === 0) {
@@ -278,5 +300,7 @@ const query = searchInput.value.trim().toLowerCase();
     });
   }
 
+  // INITIAL CART DISPLAY
   renderCart();
 });
+    
