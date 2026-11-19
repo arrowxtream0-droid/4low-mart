@@ -181,8 +181,9 @@ try {
     });
 
     cartTotal.textContent = "₹" + totalPrice.toLocaleString("en-IN");
+
+    localStorage.setItem("4lowMartCart", JSON.stringify(cart));
   }
-localStorage.setItem("4lowMartCart", JSON.stringify(cart));
   function changeQuantity(name, amount) {
     const item = cart.find(product => product.name === name);
     if (!item) return;
