@@ -4,18 +4,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="4LOW-MART - Shop everything you need in one place.">
-  <title>4LOW-MART | Everything in One Place</title>
+  <meta name="description" content="4LOW-MART - Everything. Everywhere. Discover electronics, fashion, lifestyle and more.">
+  <meta name="theme-color" content="#090909">
+  <title>4LOW-MART | Everything. Everywhere.</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+  <!-- HEADER -->
   <header class="header">
-    <div class="logo">4LOW<span>-MART</span></div>
+
+    <a href="#" class="logo">
+      4LOW<span>-MART</span>
+    </a>
 
     <div class="search-box">
-      <input type="search" placeholder="Search products, brands and more...">
+      <input
+        type="search"
+        placeholder="Search products, brands and more..."
+        aria-label="Search products"
+      >
       <button type="button">Search</button>
     </div>
 
@@ -23,115 +32,212 @@
       <a href="#">Home</a>
       <a href="#categories">Categories</a>
       <a href="#products">Products</a>
-      <a href="#">Login</a>
+      <a href="#deals">Today's Deals</a>
+      <a href="#seller">Sell on 4LOW-MART</a>
+      <a href="#account">Account</a>
       <a href="#cart" id="cart-toggle">Cart (0)</a>
     </nav>
+
   </header>
 
+  <!-- MAIN CONTENT -->
   <main>
 
+    <!-- HERO -->
     <section class="hero">
+
       <div class="hero-content">
+
         <p class="eyebrow">WELCOME TO 4LOW-MART</p>
-        <h1>Everything You Need.<br>All in One Place.</h1>
-        <p>Discover products across electronics, fashion, lifestyle, home and more.</p>
-        <a href="#categories" class="shop-button">Explore Marketplace</a>
+
+        <h1>
+          Everything You Need.
+          <br>
+          <span>All in One Place.</span>
+        </h1>
+
+        <p>
+          Explore electronics, fashion, lifestyle,
+          home essentials and much more.
+        </p>
+
+        <a href="#products" class="shop-button">
+          Shop Now →
+        </a>
+
       </div>
+
     </section>
 
+    <!-- CATEGORIES -->
     <section class="categories" id="categories">
+
       <div class="section-heading">
         <h2>Shop By Category</h2>
-        <p>Explore our marketplace</p>
+        <p>Explore our wide range of products</p>
       </div>
 
       <div class="category-grid">
-        <a href="#products" class="category-card">📱<span>Electronics</span></a>
-        <a href="#products" class="category-card">👕<span>Fashion</span></a>
-        <a href="#products" class="category-card">🏠<span>Home & Kitchen</span></a>
-        <a href="#products" class="category-card">💄<span>Beauty</span></a>
-        <a href="#products" class="category-card">📚<span>Books</span></a>
-        <a href="#products" class="category-card">⚽<span>Sports</span></a>
-        <a href="#products" class="category-card">🎮<span>Gaming</span></a>
-        <a href="#products" class="category-card">🛒<span>More</span></a>
+
+        <a href="#products" class="category-card">
+          📱 <span>Electronics</span>
+        </a>
+
+        <a href="#products" class="category-card">
+          👕 <span>Fashion</span>
+        </a>
+
+        <a href="#products" class="category-card">
+          🏠 <span>Home & Kitchen</span>
+        </a>
+
+        <a href="#products" class="category-card">
+          💄 <span>Beauty</span>
+        </a>
+
+        <a href="#products" class="category-card">
+          📚 <span>Books</span>
+        </a>
+
+        <a href="#products" class="category-card">
+          ⚽ <span>Sports</span>
+        </a>
+
+        <a href="#products" class="category-card">
+          🎮 <span>Gaming</span>
+        </a>
+
+        <a href="#products" class="category-card">
+          🛍️ <span>More</span>
+        </a>
+
       </div>
+
     </section>
 
+    <!-- PRODUCTS -->
     <section class="products" id="products">
+
       <div class="section-heading">
-        <h2>Featured Products</h2>
-        <p>Discover something new</p>
+        <h2>Trending Products</h2>
+        <p>Discover popular picks from 4LOW-MART</p>
       </div>
 
       <div class="product-grid">
+
         <div class="product-card">
           <div class="product-image">🎧</div>
           <h3>Wireless Headphones</h3>
-          <p>Coming Soon</p>
+          <p>Premium sound experience</p>
         </div>
 
         <div class="product-card">
           <div class="product-image">⌚</div>
           <h3>Smart Watch</h3>
-          <p>Coming Soon</p>
+          <p>Smart living, every day</p>
         </div>
 
         <div class="product-card">
           <div class="product-image">👟</div>
           <h3>Sports Shoes</h3>
-          <p>Coming Soon</p>
+          <p>Comfort meets performance</p>
         </div>
 
         <div class="product-card">
           <div class="product-image">🎒</div>
           <h3>Everyday Backpack</h3>
-          <p>Coming Soon</p>
+          <p>Carry everything with ease</p>
         </div>
+
       </div>
+
     </section>
 
-    <section class="seller-banner">
-      <h2>Are You a Seller?</h2>
-      <p>Bring your products to 4LOW-MART and reach more customers.</p>
-      <a href="mailto:sellers@4lowmart.com">Become a Seller</a>
+    <!-- DEALS -->
+    <section class="seller-banner" id="deals">
+
+      <h2>Discover More. <span>Save More.</span></h2>
+
+      <p>
+        Find exciting products and great deals
+        across your favourite categories.
+      </p>
+
+      <a href="#products" class="shop-button">
+        Explore Products →
+      </a>
+
+    </section>
+
+    <!-- SELLER -->
+    <section class="seller-banner" id="seller">
+
+      <h2>Want to Sell on <span>4LOW-MART?</span></h2>
+
+      <p>
+        Bring your products to our marketplace
+        and connect with customers.
+      </p>
+
+      <a href="mailto:sellers@4lowmart.com" class="shop-button">
+        Become a Seller
+      </a>
+
     </section>
 
   </main>
 
-<div class="cart-overlay" id="cart-overlay"></div>
+  <!-- CART OVERLAY -->
+  <div class="cart-overlay" id="cart-overlay"></div>
 
-<aside class="cart-drawer" id="cart-drawer">
-  <div class="cart-header">
-    <h2>Your Shopping Cart</h2>
-    <button id="cart-close" type="button">×</button>
-  </div>
+  <!-- CART DRAWER -->
+  <aside class="cart-drawer" id="cart-drawer">
 
-  <div class="cart-items" id="cart-items">
-    <p class="empty-cart">Your cart is empty.</p>
-  </div>
-
-  <div class="cart-footer">
-    <div class="cart-total">
-      <span>Subtotal</span>
-      <strong id="cart-total">₹0</strong>
+    <div class="cart-header">
+      <h2>Your Shopping Cart</h2>
+      <button id="cart-close" type="button">×</button>
     </div>
 
-    <button id="checkout-button" type="button">
-      Proceed to Checkout
-    </button>
+    <div class="cart-items" id="cart-items">
+      <p class="empty-cart">Your cart is empty.</p>
+    </div>
 
-    <button id="continue-shopping" type="button">
-      Continue Shopping
-    </button>
-  </div>
-</aside>
-  
+    <div class="cart-footer">
+
+      <div class="cart-total">
+        <span>Subtotal</span>
+        <strong id="cart-total">₹0</strong>
+      </div>
+
+      <button id="checkout-button" type="button">
+        Proceed to Checkout
+      </button>
+
+      <button id="continue-shopping" type="button">
+        Continue Shopping
+      </button>
+
+    </div>
+
+  </aside>
+
+  <!-- FOOTER -->
   <footer class="footer">
+
     <div class="logo">4LOW<span>-MART</span></div>
-    <p>Everything you need. All in one place.</p>
+
+    <p>EVERYTHING. EVERYWHERE.</p>
+
+    <p>
+      Your destination for everyday shopping.
+    </p>
+
     <p>© 2026 4LOW-MART. All rights reserved.</p>
+
   </footer>
 
   <script src="script.js"></script>
+
 </body>
-</html>
+      </html>
+      
