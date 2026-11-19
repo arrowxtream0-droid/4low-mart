@@ -1,0 +1,41 @@
+
+// 4LOW-MART - STORE FUNCTIONALITY
+
+let cart = [];
+
+function addToCart(name, price) {
+    cart.push({
+        name: name,
+        price: Number(price)
+    });
+
+    updateCart();
+}
+
+function updateCart() {
+    const cartCount = document.getElementById("cart-count");
+    const cartTotal = document.getElementById("cart-total");
+
+    if (cartCount) {
+        cartCount.textContent = cart.length;
+    }
+
+    if (cartTotal) {
+        const total = cart.reduce(
+            (sum, item) => sum + item.price, 0
+        );
+
+        cartTotal.textContent = "₹" + total;
+    }
+
+    console.log("Shopping cart:", cart);
+}
+
+function clearCart() {
+    cart = [];
+    updateCart();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("4LOW-MART is ready!");
+});
