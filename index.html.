@@ -5,7 +5,5 @@
   <meta name="description" content="Discover something beyond ordinary at 4low-mart.">
   <title>4LOW-MART | Less Ordinary</title>
 <link rel="stylesheet" href="style.css">
-  <style>
-<script src="script.js"></script>
-</body>
-</html>
+  </head>
+
