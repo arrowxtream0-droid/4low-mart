@@ -303,4 +303,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // INITIAL CART DISPLAY
   renderCart();
 });
-    
+      
