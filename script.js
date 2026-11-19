@@ -1,93 +1,73 @@
 
-const cart = [];
+document.addEventListener("DOMContentLoaded", () => {
+  const cart = [];
+  const searchInput = document.querySelector(".search-box input");
+  const searchButton = document.querySelector(".search-box button");
+  const cartCount = document.querySelector(".nav a:last-child");
+  const cards = document.querySelectorAll(".product-card");
 
-const cartCount = document.querySelector(".nav a:last-child");
-const searchInput = document.querySelector(".search-box input");
-const searchButton = document.querySelector(".search-box button");
+  const products = [
+    { name: "Wireless Headphones", price: 1499 },
+    { name: "Smart Watch", price: 1999 },
+    { name: "Sports Shoes", price: 2499 },
+    { name: "Everyday Backpack", price: 999 }
+  ];
 
-const products = [
-  { name: "Wireless Headphones", price: 1499, icon: "🎧" },
-  { name: "Smart Watch", price: 1999, icon: "⌚" },
-  { name: "Sports Shoes", price: 2499, icon: "👟" },
-  { name: "Everyday Backpack", price: 999, icon: "🎒" }
-];
+  // Add prices and cart buttons
+  cards.forEach((card, index) => {
+    const product = products[index];
+    if (!product) return;
 
-const cards = document.querySelectorAll(".product-card");
-
-// Add prices and cart buttons
-cards.forEach((card, index) => {
-  const product = products[index];
-  if (!product) return;
-
-  const price = document.createElement("p");
-  price.textContent = "₹" + product.price.toLocaleString("en-IN");
-
-  const button = document.createElement("button");
-  button.textContent = "Add to Cart";
-  button.className = "add-cart-button";
-
-  button.addEventListener("click", () => {
-    const existing = cart.find(
-      item => item.name === product.name
-    );
-
-    if (existing) {
-      existing.quantity++;
-    } else {
-      cart.push({ ...product, quantity: 1 });
+    if (!card.querySelector(".product-price")) {
+      const price = document.createElement("p");
+      price.className = "product-price";
+      price.textContent = "₹" + product.price.toLocaleString("en-IN");
+      card.appendChild(price);
     }
 
-    updateCart();
-    button.textContent = "Added ✓";
-
-    setTimeout(() => {
+    if (!card.querySelector(".add-cart-button")) {
+      const button = document.createElement("button");
+      button.className = "add-cart-button";
       button.textContent = "Add to Cart";
-    }, 1000);
-  });
 
-  card.appendChild(price);
-  card.appendChild(button);
-});
+      button.addEventListener("click", () => {
+        const existing = cart.find(item => item.name === product.name);
 
-// Update cart quantity
-function updateCart() {
-  const total = cart.reduce(
-    (sum, item) => sum + item.quantity, 0
-  );
+        if (existing) {
+          existing.quantity++;
+        } else {
+          cart.push({ ...product, quantity: 1 });
+        }
 
-  if (cartCount) {
-    cartCount.textContent = `Cart (${total})`;
-  }
-}
+        const total = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-// Search products
-function searchProducts() {
-  const query = searchInput.value.trim().toLowerCase();
+        if (cartCount) {
+          cartCount.textContent = `Cart (${total})`;
+        }
 
-  cards.forEach(card => {
-    const name = card.querySelector("h3")
-      .textContent.toLowerCase();
+        button.textContent = "Added ✓";
+      });
 
-    card.style.display = name.includes(query) ? "" : "none";
-  });
-}
-
-// Search while typing
-if (searchInput) {
-  searchInput.addEventListener("input", searchProducts);
-
-  searchInput.addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      searchProducts();
+      card.appendChild(button);
     }
   });
-}
 
-// Search button
-if (searchButton) {
-  searchButton.addEventListener("click", event => {
-    event.preventDefault();
-    searchProducts();
-  });
-      }
+  // Search products
+  function searchProducts() {
+    const query = searchInput.value.trim().toLowerCase();
+
+    cards.forEach(card => {
+      const name = card.querySelector("h3").textContent.toLowerCase();
+      card.style.display = name.includes(query) ? "" : "none";
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", searchProducts);
+    searchInput.addEventListener("keyup", searchProducts);
+  }
+
+  if (searchButton) {
+    searchButton.addEventListener("click", searchProducts);
+  }
+});
