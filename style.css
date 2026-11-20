@@ -1006,3 +1006,40 @@ input:focus-visible {
   transform: scale(0.97);
 }
 
+/* 4LOW-MART PRODUCT CARD ALIGNMENT */
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-card h3 {
+  min-height: 44px;
+}
+
+.product-rating {
+  min-height: 24px;
+}
+
+.product-price-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.product-price {
+  margin-top: 0 !important;
+}
+
+.product-original-price {
+  margin-left: 5px;
+}
+
+.add-cart-button {
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
