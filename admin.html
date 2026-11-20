@@ -6,34 +6,155 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>4LOW-MART | Admin</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#090909;color:#fff;font-family:Arial,sans-serif;padding:20px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
-.logo{font-size:23px;font-weight:bold}
-.logo span{color:#FF6B2C}
-button{background:#FF6B2C;color:white;border:0;padding:12px 18px;border-radius:7px;font-weight:bold;cursor:pointer}
-input{width:100%;padding:13px;margin:9px 0;background:#171717;color:white;border:1px solid #444;border-radius:7px}
-h1{margin-bottom:10px}
-.muted{color:#999;font-size:14px;margin-bottom:20px}
-.panel,.card{background:#171717;border:1px solid #292929;border-radius:12px;padding:20px}
-#loginBox{max-width:420px;margin:60px auto}
-#loginBox button{width:100%;margin-top:10px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:25px 0}
-.card p{color:#aaa;font-size:13px;margin-bottom:12px}
-.card h2{font-size:24px;color:#FF6B2C}
-#dashboard{display:none}
-.table-wrap{overflow-x:auto;margin-top:18px}
-table{width:100%;border-collapse:collapse;min-width:850px}
-th,td{text-align:left;padding:13px;border-bottom:1px solid #333;font-size:13px}
-th{color:#FF6B2C}
-td{color:#ddd}
-#message{margin-top:15px;color:#FF6B2C;white-space:pre-wrap}
-@media(max-width:600px){
- body{padding:14px}
- .stats{grid-template-columns:repeat(2,1fr)}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #090909;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 18px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+.logo {
+  font-size: 23px;
+  font-weight: bold;
+}
+
+.logo span {
+  color: #FF6B2C;
+}
+
+.panel, .card {
+  background: #171717;
+  border: 1px solid #292929;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+#loginBox {
+  max-width: 420px;
+  margin: 55px auto;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+.muted {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 9px 0;
+  background: #101010;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 7px;
+  font-size: 16px;
+}
+
+button {
+  background: #FF6B2C;
+  color: white;
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 7px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+#loginBox button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+#message, #orderMessage {
+  margin-top: 15px;
+  color: #FF6B2C;
+  font-size: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+#dashboard {
+  display: none;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 25px 0;
+}
+
+.card p {
+  color: #aaa;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.card h2 {
+  font-size: 24px;
+  color: #FF6B2C;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+th, td {
+  text-align: left;
+  padding: 13px;
+  border-bottom: 1px solid #333;
+  font-size: 13px;
+}
+
+th {
+  color: #FF6B2C;
+}
+
+td {
+  color: #ddd;
+  overflow-wrap: anywhere;
+}
+
+@media(max-width:600px) {
+  body {
+    padding: 12px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
 </head>
@@ -41,233 +162,343 @@ td{color:#ddd}
 <body>
 
 <header>
- <div class="logo">4LOW<span>-MART</span></div>
- <span style="color:#FF6B2C">ADMIN PANEL</span>
+  <div class="logo">4LOW<span>-MART</span></div>
+  <span style="color:#FF6B2C">ADMIN PANEL</span>
 </header>
 
 <div id="loginBox" class="panel">
- <h1>Admin Login</h1>
- <p class="muted">Sign in to manage your store.</p>
+  <h1>Admin Login</h1>
+  <p class="muted">Sign in to manage your store.</p>
 
- <form id="loginForm">
-  <input id="email" type="email" placeholder="Admin Gmail" required>
-  <input id="password" type="password" placeholder="Password" required>
-  <button type="submit">Login</button>
- </form>
+  <form id="loginForm">
+    <input
+      id="email"
+      type="email"
+      placeholder="Admin Gmail"
+      autocomplete="username"
+      required
+    >
 
- <p id="message"></p>
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+      autocomplete="current-password"
+      required
+    >
+
+    <button id="loginBtn" type="submit">Login</button>
+  </form>
+
+  <p id="message" role="status">Connecting...</p>
 </div>
 
 <div id="dashboard">
 
- <h1>Dashboard</h1>
- <p class="muted">Welcome to 4LOW-MART administration.</p>
+  <h1>Dashboard</h1>
+  <p class="muted">Welcome to 4LOW-MART administration.</p>
 
- <button id="refreshBtn">Refresh Orders</button>
- <button id="logoutBtn" style="background:#333;margin-left:8px">Logout</button>
+  <button id="refreshBtn">Refresh Orders</button>
+  <button id="logoutBtn" style="background:#333;margin-left:8px">
+    Logout
+  </button>
 
- <div class="stats">
-  <div class="card">
-   <p>Total Orders</p>
-   <h2 id="totalOrders">0</h2>
+  <div class="stats">
+
+    <div class="card">
+      <p>Total Orders</p>
+      <h2 id="totalOrders">0</h2>
+    </div>
+
+    <div class="card">
+      <p>Total Order Value</p>
+      <h2 id="totalValue">₹0</h2>
+    </div>
+
+    <div class="card">
+      <p>Pending Orders</p>
+      <h2 id="pendingOrders">0</h2>
+    </div>
+
   </div>
 
-  <div class="card">
-   <p>Total Order Value</p>
-   <h2 id="totalValue">₹0</h2>
-  </div>
+  <div class="panel">
+    <h2>Customer Orders</h2>
+    <p class="muted">Latest orders from your database.</p>
 
-  <div class="card">
-   <p>Pending Orders</p>
-   <h2 id="pendingOrders">0</h2>
-  </div>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Pincode</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
 
- <div class="panel">
-  <h2>Customer Orders</h2>
-  <p class="muted">Latest orders from your Supabase database.</p>
+        <tbody id="ordersList">
+          <tr>
+            <td colspan="10">Waiting for orders...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <div class="table-wrap">
-   <table>
-    <thead>
-     <tr>
-      <th>ID</th>
-      <th>Customer</th>
-      <th>Phone</th>
-      <th>Address</th>
-      <th>City</th>
-      <th>Pincode</th>
-      <th>Items</th>
-      <th>Total</th>
-      <th>Status</th>
-      <th>Date</th>
-     </tr>
-    </thead>
-    <tbody id="ordersList">
-     <tr><td colspan="10">Loading orders...</td></tr>
-    </tbody>
-   </table>
+    <p id="orderMessage"></p>
   </div>
-  <p id="orderMessage" style="margin-top:15px;color:#FF6B2C"></p>
- </div>
 </div>
 
+<!-- Supabase library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-const SUPABASE_URL = "https://vnfbxbwtvtwigijflbgl.supabase.co";
-const SUPABASE_KEY = "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
+"use strict";
 
-document.getElementById("message").textContent =
-  "JavaScript running. Supabase available: " + !!window.supabase;
+/* SUPABASE CONFIGURATION */
 
-const supabase = window.supabase.createClient(
- SUPABASE_URL,
- SUPABASE_KEY
-);
+const SUPABASE_URL =
+  "https://vnfbxbwtvtwigijflbgl.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
+
+/* ELEMENTS */
 
 const loginBox = document.getElementById("loginBox");
 const dashboard = document.getElementById("dashboard");
+const loginForm = document.getElementById("loginForm");
 const message = document.getElementById("message");
+const loginBtn = document.getElementById("loginBtn");
+
+let supabaseClient;
+
+/* HELPERS */
+
+function showMessage(text) {
+  message.textContent = text;
+}
 
 function escapeHTML(value) {
- return String(value ?? "").replace(/[&<>"']/g, char => ({
-  "&":"&amp;",
-  "<":"&lt;",
-  ">":"&gt;",
-  '"':"&quot;",
-  "'":"&#39;"
- }[char]));
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
 }
 
 function money(value) {
- return "₹" + Number(value || 0).toLocaleString("en-IN");
+  return "₹" + Number(value || 0).toLocaleString("en-IN");
 }
+
+/* CONNECT TO SUPABASE */
+
+try {
+  if (!window.supabase) {
+    throw new Error("Supabase library did not load. Check internet connection.");
+  }
+
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  showMessage("Connected to Supabase. Please log in.");
+
+} catch (error) {
+  showMessage("Connection error: " + error.message);
+}
+
+/* LOAD ORDERS */
 
 async function loadOrders() {
- const output = document.getElementById("ordersList");
- const info = document.getElementById("orderMessage");
+  const output = document.getElementById("ordersList");
+  const info = document.getElementById("orderMessage");
 
- output.innerHTML = '<tr><td colspan="10">Loading...</td></tr>';
- info.textContent = "";
+  output.innerHTML =
+    '<tr><td colspan="10">Loading orders...</td></tr>';
 
- const { data, error } = await supabase
-  .from("orders")
-  .select("id,customer_name,phone,address,city,pincode,items,total,status,created_at")
-  .order("created_at", { ascending: false });
+  info.textContent = "";
 
- if (error) {
-  output.innerHTML = "";
-  info.textContent = "Error: " + error.message;
-  return;
- }
+  try {
+    const { data, error } = await supabaseClient
+      .from("orders")
+      .select("id,customer_name,phone,address,city,pincode,items,total,status,created_at")
+      .order("created_at", { ascending: false });
 
- const orders = data || [];
+    if (error) throw error;
 
- document.getElementById("totalOrders").textContent = orders.length;
+    const orders = data || [];
 
- const total = orders.reduce(
-  (sum, order) => sum + Number(order.total || 0), 0
- );
+    document.getElementById("totalOrders").textContent =
+      orders.length;
 
- document.getElementById("totalValue").textContent = money(total);
+    const total = orders.reduce(
+      (sum, order) => sum + Number(order.total || 0),
+      0
+    );
 
- const pending = orders.filter(
-  order => String(order.status || "").toLowerCase() === "pending"
- ).length;
+    document.getElementById("totalValue").textContent =
+      money(total);
 
- document.getElementById("pendingOrders").textContent = pending;
+    const pending = orders.filter(
+      order => String(order.status || "").toLowerCase() === "pending"
+    ).length;
 
- if (orders.length === 0) {
-  output.innerHTML = '<tr><td colspan="10">No orders found.</td></tr>';
-  return;
- }
+    document.getElementById("pendingOrders").textContent =
+      pending;
 
- output.innerHTML = orders.map(order => {
-  const items = typeof order.items === "string"
-   ? order.items
-   : JSON.stringify(order.items || []);
+    if (orders.length === 0) {
+      output.innerHTML =
+        '<tr><td colspan="10">No orders found.</td></tr>';
+      return;
+    }
 
-  const date = order.created_at
-   ? new Date(order.created_at).toLocaleString("en-IN")
-   : "-";
+    output.innerHTML = orders.map(order => {
+      const items = typeof order.items === "string"
+        ? order.items
+        : JSON.stringify(order.items || []);
 
-  return `
-   <tr>
-    <td>${escapeHTML(order.id)}</td>
-    <td>${escapeHTML(order.customer_name)}</td>
-    <td>${escapeHTML(order.phone)}</td>
-    <td>${escapeHTML(order.address)}</td>
-    <td>${escapeHTML(order.city)}</td>
-    <td>${escapeHTML(order.pincode)}</td>
-    <td>${escapeHTML(items)}</td>
-    <td>${money(order.total)}</td>
-    <td>${escapeHTML(order.status)}</td>
-    <td>${escapeHTML(date)}</td>
-   </tr>
-  `;
- }).join("");
+      const date = order.created_at
+        ? new Date(order.created_at).toLocaleString("en-IN")
+        : "-";
+
+      return `
+        <tr>
+          <td>${escapeHTML(order.id)}</td>
+          <td>${escapeHTML(order.customer_name)}</td>
+          <td>${escapeHTML(order.phone)}</td>
+          <td>${escapeHTML(order.address)}</td>
+          <td>${escapeHTML(order.city)}</td>
+          <td>${escapeHTML(order.pincode)}</td>
+          <td>${escapeHTML(items)}</td>
+          <td>${money(order.total)}</td>
+          <td>${escapeHTML(order.status)}</td>
+          <td>${escapeHTML(date)}</td>
+        </tr>
+      `;
+    }).join("");
+
+  } catch (error) {
+    output.innerHTML = "";
+    info.textContent = "Order loading error: " + error.message;
+  }
 }
+
+/* SHOW DASHBOARD */
 
 async function showDashboard() {
- loginBox.style.display = "none";
- dashboard.style.display = "block";
- await loadOrders();
+  loginBox.style.display = "none";
+  dashboard.style.display = "block";
+
+  await loadOrders();
 }
 
-document.getElementById("loginForm").addEventListener("submit",
- async function(event) {
-  event.preventDefault();
-  message.textContent = "Signing in...";
+/* LOGIN */
 
-  const email = document.getElementById("email").value;
+loginForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  if (!supabaseClient) {
+    showMessage("Supabase connection is not available. Reload the page.");
+    return;
+  }
+
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Signing in...";
+  showMessage("Checking login details...");
+
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const { error } = await supabase.auth.signInWithPassword({
-   email,
-   password
-  });
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
-  if (error) {
-   message.textContent = error.message;
-   return;
+    if (error) throw error;
+
+    if (!data.session) {
+      throw new Error("Login succeeded but no session was returned.");
+    }
+
+    showMessage("Login successful.");
+
+    await showDashboard();
+
+  } catch (error) {
+    showMessage("Login failed: " + error.message);
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Login";
   }
+});
 
-  message.textContent = "";
-  await showDashboard();
- }
+/* REFRESH */
+
+document.getElementById("refreshBtn").addEventListener(
+  "click",
+  loadOrders
 );
 
-document.getElementById("refreshBtn").addEventListener("click", loadOrders);
+/* LOGOUT */
 
-document.getElementById("logoutBtn").addEventListener("click",
- async function() {
-  const { error } = await supabase.auth.signOut();
+document.getElementById("logoutBtn").addEventListener(
+  "click",
+  async function() {
 
-  if (error) {
-   alert(error.message);
-   return;
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+
+      if (error) throw error;
+
+      dashboard.style.display = "none";
+      loginBox.style.display = "block";
+
+      document.getElementById("password").value = "";
+
+      showMessage("You have logged out.");
+
+    } catch (error) {
+      alert("Logout error: " + error.message);
+    }
   }
-
-  dashboard.style.display = "none";
-  loginBox.style.display = "block";
-  document.getElementById("password").value = "";
- }
 );
+
+/* CHECK EXISTING SESSION */
 
 async function checkLogin() {
- const { data, error } = await supabase.auth.getSession();
+  if (!supabaseClient) return;
 
- if (error) {
-  message.textContent = error.message;
-  return;
- }
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
 
- if (data.session) {
-  await showDashboard();
- }
+    if (error) throw error;
+
+    if (data.session) {
+      await showDashboard();
+    } else {
+      showMessage("Connected to Supabase. Please log in.");
+    }
+
+  } catch (error) {
+    showMessage("Session error: " + error.message);
+  }
 }
 
 checkLogin();
+
 </script>
 
 </body>
-</html>
+ </html>
+ 
