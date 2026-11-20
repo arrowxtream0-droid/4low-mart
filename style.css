@@ -585,3 +585,81 @@ button {
     font-size: 23px;
   }
 }
+/* =================================
+   4LOW-MART RESPONSIVE DESIGN
+================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* TABLETS */
+@media (max-width: 1024px) {
+    .products,
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .container {
+        width: 94%;
+        margin: auto;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .products,
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    header {
+        flex-wrap: wrap;
+    }
+
+    nav {
+        flex-wrap: wrap;
+    }
+
+    button {
+        max-width: 100%;
+    }
+}
+
+/* SMALL MOBILE */
+@media (max-width: 480px) {
+    .products,
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: clamp(28px, 8vw, 42px);
+    }
+
+    body {
+        font-size: 14px;
+    }
+}
+
+/* LARGE DESKTOP */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+        margin: auto;
+    }
+}
