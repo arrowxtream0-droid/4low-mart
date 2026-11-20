@@ -327,7 +327,16 @@
         .from("orders")
         .insert([order]);
 
-      if (error) throw error;
+      if (error) {
+  console.error("Supabase detailed error:", error);
+  alert(
+    "Code: " + error.code +
+    "\nMessage: " + error.message +
+    "\nDetails: " + error.details +
+    "\nHint: " + error.hint
+  );
+  return;
+      }
 
       alert("Order saved successfully!");
 
