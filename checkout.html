@@ -211,13 +211,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-  const SUPABASE_URL = "https://vnfbxbwtvtwigijflbgl.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
-
-  const db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+  const SUPABASE_URL = "YOUR_PROJECT_URL";
+  const SUPABASE_KEY = "YOUR_PUBLISHABLE_KEY";
 
   let cart = [];
 
@@ -262,6 +257,7 @@
         item.quantity < 1
       ) {
         orderItems.textContent = "Invalid cart data.";
+        orderTotal.textContent = "₹0";
         submitButton.disabled = true;
         return;
       }
@@ -282,6 +278,7 @@
     }
 
     orderTotal.textContent = formatPrice(total);
+    submitButton.disabled = false;
   }
 
   checkoutForm.addEventListener("submit", async function(event) {
@@ -295,10 +292,10 @@
     if (!checkoutForm.reportValidity()) return;
 
     if (
-      SUPABASE_URL.includes("PASTE_") ||
-      SUPABASE_KEY.includes("PASTE_")
+      !window.supabase ||
+      typeof window.supabase.createClient !== "function"
     ) {
-      alert("Please add your Supabase credentials first.");
+      alert("Supabase library did not load. Refresh and try again.");
       return;
     }
 
@@ -321,6 +318,11 @@
     };
 
     try {
+      const db = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
       const { error } = await db
         .from("orders")
         .insert([order]);
