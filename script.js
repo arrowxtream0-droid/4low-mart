@@ -129,7 +129,24 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add product information
     card.append(rating, priceBox);
 
-    // Add to cart button
+    
+    // QUICK VIEW BUTTON
+    const quickViewButton = document.createElement("button");
+    quickViewButton.className = "quick-view-button";
+    quickViewButton.textContent = "Quick View";
+
+    quickViewButton.addEventListener("click", () => {
+      alert(
+        product.name +
+        "\n\nPrice: ₹" + product.price.toLocaleString("en-IN") +
+        "\nRating: " + product.rating + " / 5" +
+        "\nDiscount: " + product.discount
+      );
+    });
+
+    card.appendChild(quickViewButton);
+
+    // ADD TO CART BUTTON
     const button = document.createElement("button");
     button.className = "add-cart-button";
     button.textContent = "Add to Cart";
@@ -148,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     card.appendChild(button);
   });
+  
 
   // =========================
   // 5. SAVE CART
