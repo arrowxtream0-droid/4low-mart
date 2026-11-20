@@ -208,105 +208,139 @@
     </div>
   </div>
 
-  <script>
-    let cart = [];
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+  const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+  const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  let cart = [];
+
+  try {
+    const savedCart = JSON.parse(
+      localStorage.getItem("4lowMartCart") || "[]"
+    );
+
+    if (Array.isArray(savedCart)) cart = savedCart;
+  } catch (error) {
+    cart = [];
+  }
+
+  const orderItems = document.getElementById("order-items");
+  const orderTotal = document.getElementById("order-total");
+  const checkoutForm = document.getElementById("checkout-form");
+  const submitButton = checkoutForm.querySelector("button");
+
+  let total = 0;
+
+  function formatPrice(price) {
+    return "₹" + price.toLocaleString("en-IN");
+  }
+
+  function renderOrder() {
+    orderItems.replaceChildren();
+    total = 0;
+
+    if (cart.length === 0) {
+      orderItems.textContent = "Your cart is empty.";
+      orderTotal.textContent = "₹0";
+      submitButton.disabled = true;
+      return;
+    }
+
+    for (const item of cart) {
+      if (
+        typeof item.name !== "string" ||
+        !Number.isFinite(item.price) ||
+        !Number.isInteger(item.quantity) ||
+        item.price < 0 ||
+        item.quantity < 1
+      ) {
+        orderItems.textContent = "Invalid cart data.";
+        submitButton.disabled = true;
+        return;
+      }
+
+      total += item.price * item.quantity;
+
+      const row = document.createElement("div");
+      row.className = "order-item";
+
+      const name = document.createElement("span");
+      name.textContent = item.name + " × " + item.quantity;
+
+      const price = document.createElement("strong");
+      price.textContent = formatPrice(item.price * item.quantity);
+
+      row.append(name, price);
+      orderItems.appendChild(row);
+    }
+
+    orderTotal.textContent = formatPrice(total);
+  }
+
+  checkoutForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+
+    if (!checkoutForm.reportValidity()) return;
+
+    if (
+      SUPABASE_URL.includes("PASTE_") ||
+      SUPABASE_KEY.includes("PASTE_")
+    ) {
+      alert("Please add your Supabase credentials first.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Saving order...";
+
+    const order = {
+      customer_name: document.getElementById("name").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      address: document.getElementById("address").value.trim(),
+      city: document.getElementById("city").value.trim(),
+      pincode: document.getElementById("pincode").value.trim(),
+      items: cart.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
+      total: total,
+      status: "pending"
+    };
 
     try {
-      const savedCart = JSON.parse(
-        localStorage.getItem("4lowMartCart") || "[]"
-      );
+      const { error } = await db
+        .from("orders")
+        .insert([order]);
 
-      if (Array.isArray(savedCart)) {
-        cart = savedCart;
-      }
+      if (error) throw error;
+
+      alert("Demo order saved successfully!");
+      submitButton.textContent = "Order Saved ✓";
+
     } catch (error) {
-      cart = [];
+      console.error("Order error:", error);
+      alert("Order could not be saved: " + error.message);
+
+      submitButton.disabled = false;
+      submitButton.textContent = "Continue to Payment";
     }
+  });
 
-    const orderItems =
-      document.getElementById("order-items");
-
-    const orderTotal =
-      document.getElementById("order-total");
-
-    const checkoutForm =
-      document.getElementById("checkout-form");
-
-    let total = 0;
-
-    function formatPrice(price) {
-      return "₹" + price.toLocaleString("en-IN");
-    }
-
-    function renderOrder() {
-      orderItems.replaceChildren();
-      total = 0;
-
-      if (cart.length === 0) {
-        const message = document.createElement("p");
-        message.className = "empty";
-        message.textContent =
-          "Your cart is empty. Return to shopping.";
-
-        orderItems.appendChild(message);
-        orderTotal.textContent = "₹0";
-        checkoutForm.querySelector("button").disabled = true;
-        return;
-      }
-
-      for (const item of cart) {
-        if (
-          typeof item.name !== "string" ||
-          !Number.isFinite(item.price) ||
-          !Number.isInteger(item.quantity) ||
-          item.price < 0 ||
-          item.quantity < 1
-        ) {
-          orderItems.textContent =
-            "Invalid cart data. Please return to your cart.";
-          checkoutForm.querySelector("button").disabled = true;
-          return;
-        }
-
-        const subtotal = item.price * item.quantity;
-        total += subtotal;
-
-        const row = document.createElement("div");
-        row.className = "order-item";
-
-        const name = document.createElement("span");
-        name.textContent =
-          item.name + " × " + item.quantity;
-
-        const price = document.createElement("strong");
-        price.textContent = formatPrice(subtotal);
-
-        row.append(name, price);
-        orderItems.appendChild(row);
-      }
-
-      orderTotal.textContent = formatPrice(total);
-    }
-
-    checkoutForm.addEventListener("submit", function(event) {
-      event.preventDefault();
-
-      if (cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-      }
-
-      if (!checkoutForm.reportValidity()) {
-        return;
-      }
-
-      alert(
-        "Delivery details submitted successfully! Payment integration is our next step."
-      );
-    });
-
-    renderOrder();
-  </script>
+  renderOrder();
+        </script>
 
 </body>
 </html>
