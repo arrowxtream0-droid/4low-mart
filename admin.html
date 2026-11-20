@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4LOW-MART | Admin Dashboard</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #090909;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.logo span {
+  color: #FF6B2C;
+}
+
+.admin {
+  color: #FF6B2C;
+  font-size: 12px;
+  border: 1px solid #FF6B2C;
+  padding: 7px 12px;
+  border-radius: 20px;
+}
+
+h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #999;
+  margin-bottom: 25px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.card {
+  background: #171717;
+  padding: 22px;
+  border: 1px solid #292929;
+  border-radius: 12px;
+}
+
+.card p {
+  color: #999;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.card h2 {
+  font-size: 27px;
+}
+
+.orange {
+  color: #FF6B2C;
+}
+
+.section {
+  margin-top: 35px;
+  background: #171717;
+  padding: 22px;
+  border: 1px solid #292929;
+  border-radius: 12px;
+}
+
+.section h2 {
+  margin-bottom: 15px;
+}
+
+.empty {
+  color: #999;
+  font-size: 14px;
+}
+
+footer {
+  text-align: center;
+  color: #666;
+  margin-top: 45px;
+  font-size: 12px;
+}
+
+@media (max-width: 400px) {
+  body {
+    padding: 14px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">4LOW<span>-MART</span></div>
+  <div class="admin">ADMIN</div>
+</header>
+
+<h1>Dashboard</h1>
+<p class="subtitle">Welcome to your store management panel.</p>
+
+<div class="stats">
+
+  <div class="card">
+    <p>Total Orders</p>
+    <h2 id="totalOrders">0</h2>
+  </div>
+
+  <div class="card">
+    <p>Total Revenue</p>
+    <h2 class="orange" id="totalRevenue">₹0</h2>
+  </div>
+
+  <div class="card">
+    <p>Pending Orders</p>
+    <h2 id="pendingOrders">0</h2>
+  </div>
+
+  <div class="card">
+    <p>Products</p>
+    <h2>4</h2>
+  </div>
+
+</div>
+
+<div class="section">
+  <h2>Recent Orders</h2>
+  <p class="empty">Your orders will appear here.</p>
+</div>
+
+<footer>
+  © 2026 4LOW-MART. All rights reserved.
+</footer>
+
+</body>
+</html>
+  
