@@ -1,10 +1,15 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  // CART DATA
+
+  // =========================
+  // 1. CART DATA
+  // =========================
+
   let cart = [];
 
   try {
     const savedCart = localStorage.getItem("4lowMartCart");
+
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
       if (Array.isArray(parsedCart)) cart = parsedCart;
@@ -13,7 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("4lowMartCart");
   }
 
-  // PAGE ELEMENTS
+  // =========================
+  // 2. PAGE ELEMENTS
+  // =========================
+
   const cards = document.querySelectorAll(".product-card");
   const searchInput = document.querySelector(".search-box input");
   const searchButton = document.querySelector(".search-box button");
@@ -28,7 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const continueShopping = document.querySelector("#continue-shopping");
   const checkoutButton = document.querySelector("#checkout-button");
 
-  // PRODUCTS
+  // =========================
+  // 3. PRODUCT DATA
+  // =========================
+
   const products = [
     {
       name: "Wireless Headphones",
@@ -64,7 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   ];
 
-  // ADD PRODUCT DETAILS
+  // =========================
+  // 4. PRODUCT CARD DESIGN
+  // =========================
+
   cards.forEach((card, index) => {
     const product = products[index];
     if (!product) return;
@@ -73,46 +87,80 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (imageBox) {
       const img = document.createElement("img");
+
       img.src = product.image;
       img.alt = product.name;
       img.loading = "lazy";
       img.style.width = "100%";
       img.style.height = "100%";
       img.style.objectFit = "contain";
+
       imageBox.replaceChildren(img);
+
+      const discount = document.createElement("span");
+      discount.className = "product-discount";
+      discount.textContent = product.discount;
+
+      imageBox.appendChild(discount);
     }
 
-    if (!card.querySelector(".product-price")) {
-      const price = document.createElement("p");
-      price.className = "product-price";
-      price.textContent = "₹" + product.price.toLocaleString("en-IN");
-      card.appendChild(price);
-    }
+    // Product rating
+    const rating = document.createElement("p");
+    rating.className = "product-rating";
+    rating.textContent = `★ ${product.rating} / 5`;
 
-    if (!card.querySelector(".add-cart-button")) {
-      const button = document.createElement("button");
-      button.className = "add-cart-button";
-      button.textContent = "Add to Cart";
+    // Original price
+    const originalPrice = document.createElement("span");
+    originalPrice.className = "product-original-price";
+    originalPrice.textContent =
+      "₹" + product.originalPrice.toLocaleString("en-IN");
 
-      button.addEventListener("click", () => {
-        addToCart(product);
-        button.textContent = "Added ✓";
+    // Current price
+    const price = document.createElement("p");
+    price.className = "product-price";
+    price.textContent =
+      "₹" + product.price.toLocaleString("en-IN");
 
-        setTimeout(() => {
-          button.textContent = "Add to Cart";
-        }, 1000);
-      });
+    // Price section
+    const priceBox = document.createElement("div");
+    priceBox.className = "product-price-box";
+    priceBox.append(price, originalPrice);
 
-      card.appendChild(button);
-    }
+    // Add product information
+    card.append(rating, priceBox);
+
+    // Add to cart button
+    const button = document.createElement("button");
+    button.className = "add-cart-button";
+    button.textContent = "Add to Cart";
+
+    button.addEventListener("click", () => {
+      addToCart(product);
+
+      button.textContent = "Added ✓";
+      button.disabled = true;
+
+      setTimeout(() => {
+        button.textContent = "Add to Cart";
+        button.disabled = false;
+      }, 1000);
+    });
+
+    card.appendChild(button);
   });
 
-  // SAVE CART
+  // =========================
+  // 5. SAVE CART
+  // =========================
+
   function saveCart() {
     localStorage.setItem("4lowMartCart", JSON.stringify(cart));
   }
 
-  // ADD TO CART
+  // =========================
+  // 6. ADD TO CART
+  // =========================
+
   function addToCart(product) {
     const existing = cart.find(item => item.name === product.name);
 
@@ -125,7 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCart();
   }
 
-  // RENDER CART
+  // =========================
+  // 7. RENDER CART
+  // =========================
+
   function renderCart() {
     const totalQuantity = cart.reduce(
       (sum, item) => sum + item.quantity, 0
@@ -140,7 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (cartTotal) {
-      cartTotal.textContent = "₹" + totalPrice.toLocaleString("en-IN");
+      cartTotal.textContent =
+        "₹" + totalPrice.toLocaleString("en-IN");
     }
 
     if (!cartItems) {
@@ -163,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const img = document.createElement("img");
       img.className = "cart-product-icon";
-      img.src = item.image;
+      img.src = item.image || "";
       img.alt = item.name;
       img.style.width = "85px";
       img.style.height = "85px";
@@ -178,26 +230,33 @@ document.addEventListener("DOMContentLoaded", () => {
       name.textContent = item.name;
 
       const price = document.createElement("p");
-      price.textContent = "₹" + item.price.toLocaleString("en-IN");
+      price.textContent =
+        "₹" + item.price.toLocaleString("en-IN");
 
       const controls = document.createElement("div");
       controls.className = "cart-quantity";
 
       const minus = document.createElement("button");
       minus.textContent = "−";
-      minus.addEventListener("click", () => changeQuantity(item.name, -1));
+      minus.addEventListener("click", () => {
+        changeQuantity(item.name, -1);
+      });
 
       const quantity = document.createElement("span");
       quantity.textContent = item.quantity;
 
       const plus = document.createElement("button");
       plus.textContent = "+";
-      plus.addEventListener("click", () => changeQuantity(item.name, 1));
+      plus.addEventListener("click", () => {
+        changeQuantity(item.name, 1);
+      });
 
       const remove = document.createElement("button");
       remove.className = "cart-remove";
       remove.textContent = "Remove";
-      remove.addEventListener("click", () => removeItem(item.name));
+      remove.addEventListener("click", () => {
+        removeItem(item.name);
+      });
 
       controls.append(minus, quantity, plus);
       details.append(name, price, controls, remove);
@@ -208,7 +267,10 @@ document.addEventListener("DOMContentLoaded", () => {
     saveCart();
   }
 
-  // CHANGE QUANTITY
+  // =========================
+  // 8. CHANGE QUANTITY
+  // =========================
+
   function changeQuantity(name, amount) {
     const item = cart.find(product => product.name === name);
     if (!item) return;
@@ -223,15 +285,22 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCart();
   }
 
-  // REMOVE PRODUCT
+  // =========================
+  // 9. REMOVE PRODUCT
+  // =========================
+
   function removeItem(name) {
     cart = cart.filter(item => item.name !== name);
     renderCart();
   }
 
-  // OPEN AND CLOSE CART
+  // =========================
+  // 10. OPEN AND CLOSE CART
+  // =========================
+
   function openCart() {
     if (!cartDrawer || !cartOverlay) return;
+
     cartDrawer.classList.add("active");
     cartOverlay.classList.add("active");
   }
@@ -264,7 +333,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Escape") closeCart();
   });
 
-  // SEARCH PRODUCTS
+  // =========================
+  // 11. SEARCH PRODUCTS
+  // =========================
+
   function searchProducts() {
     if (!searchInput) return;
 
@@ -272,7 +344,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cards.forEach(card => {
       const heading = card.querySelector("h3");
-      const name = heading ? heading.textContent.toLowerCase() : "";
+      const name = heading
+        ? heading.textContent.toLowerCase()
+        : "";
+
       card.style.display = name.includes(query) ? "" : "none";
     });
   }
@@ -289,7 +364,10 @@ document.addEventListener("DOMContentLoaded", () => {
     searchButton.addEventListener("click", searchProducts);
   }
 
-  // CHECKOUT
+  // =========================
+  // 12. CHECKOUT
+  // =========================
+
   if (checkoutButton) {
     checkoutButton.addEventListener("click", () => {
       if (cart.length === 0) {
@@ -300,7 +378,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // INITIAL CART DISPLAY
+  // =========================
+  // 13. INITIAL CART DISPLAY
+  // =========================
+
   renderCart();
+
 });
-      
+                     
