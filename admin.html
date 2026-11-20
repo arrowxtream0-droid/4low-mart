@@ -4,7 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>4LOW-MART | Admin</title>
+<title>4LOW-MART | Admin Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * {
@@ -17,118 +19,136 @@ body {
   background: #090909;
   color: #fff;
   font-family: Arial, sans-serif;
-  padding: 18px;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
 }
 
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
   margin-bottom: 30px;
-  gap: 10px;
 }
 
 .logo {
-  font-size: 23px;
-  font-weight: bold;
+  font-size: 25px;
+  font-weight: 900;
 }
 
 .logo span {
   color: #FF6B2C;
 }
 
-.panel, .card {
-  background: #171717;
-  border: 1px solid #292929;
-  border-radius: 12px;
-  padding: 20px;
-}
-
-#loginBox {
-  max-width: 420px;
-  margin: 55px auto;
-}
-
-h1 {
-  margin-bottom: 10px;
-}
-
-.muted {
-  color: #999;
-  font-size: 14px;
+h2 {
   margin-bottom: 20px;
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  margin: 9px 0;
-  background: #101010;
-  color: white;
-  border: 1px solid #444;
-  border-radius: 7px;
-  font-size: 16px;
 }
 
 button {
   background: #FF6B2C;
-  color: white;
-  border: 0;
-  padding: 12px 18px;
+  color: #fff;
+  border: none;
+  padding: 11px 16px;
   border-radius: 7px;
   font-weight: bold;
   cursor: pointer;
 }
 
 button:disabled {
-  opacity: .6;
-  cursor: wait;
+  opacity: .5;
+  cursor: not-allowed;
 }
 
-#loginBox button {
+.secondary {
+  background: #252525;
+}
+
+input, select {
+  background: #171717;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 11px;
+  border-radius: 6px;
   width: 100%;
-  margin-top: 10px;
 }
 
-#message, #orderMessage {
-  margin-top: 15px;
+.login-box {
+  max-width: 400px;
+  margin: 70px auto;
+  background: #151515;
+  padding: 25px;
+  border: 1px solid #292929;
+  border-radius: 12px;
+}
+
+.login-box h2 {
   color: #FF6B2C;
-  font-size: 14px;
-  white-space: pre-wrap;
+}
+
+.login-box input {
+  margin-bottom: 15px;
+}
+
+.login-box button {
+  width: 100%;
+}
+
+.message {
+  margin: 15px 0;
+  color: #FF6B2C;
   overflow-wrap: anywhere;
 }
 
-#dashboard {
+.dashboard {
   display: none;
 }
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin: 25px 0;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
 }
 
-.card p {
+.stat-card {
+  background: #151515;
+  border: 1px solid #292929;
+  padding: 22px;
+  border-radius: 10px;
+}
+
+.stat-card p {
   color: #aaa;
-  font-size: 13px;
   margin-bottom: 12px;
 }
 
-.card h2 {
-  font-size: 24px;
+.stat-card h3 {
+  font-size: 26px;
   color: #FF6B2C;
+  overflow-wrap: anywhere;
+}
+
+.orders-section {
+  background: #151515;
+  border: 1px solid #292929;
+  border-radius: 10px;
+  padding: 18px;
 }
 
 .table-wrap {
+  width: 100%;
   overflow-x: auto;
-  margin-top: 18px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 850px;
+  min-width: 1100px;
 }
 
 th, td {
@@ -136,24 +156,43 @@ th, td {
   padding: 13px;
   border-bottom: 1px solid #333;
   font-size: 13px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  max-width: 240px;
 }
 
 th {
   color: #FF6B2C;
 }
 
-td {
-  color: #ddd;
-  overflow-wrap: anywhere;
+td select {
+  min-width: 125px;
+  margin-bottom: 8px;
 }
 
-@media(max-width:600px) {
+.update-btn {
+  padding: 9px 12px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media(max-width: 600px) {
   body {
     padding: 12px;
   }
 
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
+  .logo {
+    font-size: 21px;
+  }
+
+  .orders-section {
+    padding: 10px;
   }
 }
 </style>
@@ -161,129 +200,124 @@ td {
 
 <body>
 
-<header>
-  <div class="logo">4LOW<span>-MART</span></div>
-  <span style="color:#FF6B2C">ADMIN PANEL</span>
-</header>
+<div class="container">
 
-<div id="loginBox" class="panel">
-  <h1>Admin Login</h1>
-  <p class="muted">Sign in to manage your store.</p>
+  <header>
+    <div class="logo">4LOW-<span>MART</span> ADMIN</div>
+  </header>
 
-  <form id="loginForm">
-    <input
-      id="email"
-      type="email"
-      placeholder="Admin Gmail"
-      autocomplete="username"
-      required
-    >
+  <!-- LOGIN -->
+  <div class="login-box" id="loginBox">
+    <h2>Admin Login</h2>
 
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-      autocomplete="current-password"
-      required
-    >
+    <form id="loginForm">
+      <input
+        type="email"
+        id="email"
+        placeholder="Admin email"
+        autocomplete="username"
+        required
+      >
 
-    <button id="loginBtn" type="submit">Login</button>
-  </form>
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        autocomplete="current-password"
+        required
+      >
 
-  <p id="message" role="status">Connecting...</p>
-</div>
+      <button type="submit" id="loginBtn">Login</button>
+    </form>
 
-<div id="dashboard">
+    <p class="message" id="loginMessage"></p>
+  </div>
 
-  <h1>Dashboard</h1>
-  <p class="muted">Welcome to 4LOW-MART administration.</p>
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
 
-  <button id="refreshBtn">Refresh Orders</button>
-  <button id="logoutBtn" style="background:#333;margin-left:8px">
-    Logout
-  </button>
+    <div class="toolbar">
+      <h2>Dashboard Overview</h2>
 
-  <div class="stats">
-
-    <div class="card">
-      <p>Total Orders</p>
-      <h2 id="totalOrders">0</h2>
+      <div>
+        <button class="secondary" id="refreshBtn">Refresh Orders</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
     </div>
 
-    <div class="card">
-      <p>Total Order Value</p>
-      <h2 id="totalValue">₹0</h2>
+    <p class="message" id="orderMessage"></p>
+
+    <div class="stats">
+
+      <div class="stat-card">
+        <p>Total Orders</p>
+        <h3 id="totalOrders">0</h3>
+      </div>
+
+      <div class="stat-card">
+        <p>Total Order Value</p>
+        <h3 id="totalValue">₹0</h3>
+      </div>
+
+      <div class="stat-card">
+        <p>Pending Orders</p>
+        <h3 id="pendingOrders">0</h3>
+      </div>
+
     </div>
 
-    <div class="card">
-      <p>Pending Orders</p>
-      <h2 id="pendingOrders">0</h2>
+    <div class="orders-section">
+      <h2>Customer Orders</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>City</th>
+              <th>Pincode</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+
+          <tbody id="ordersList">
+            <tr>
+              <td colspan="10">Please log in.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </div>
-
-  <div class="panel">
-    <h2>Customer Orders</h2>
-    <p class="muted">Latest orders from your database.</p>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>Pincode</th>
-            <th>Items</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-
-        <tbody id="ordersList">
-          <tr>
-            <td colspan="10">Waiting for orders...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p id="orderMessage"></p>
-  </div>
 </div>
-
-<!-- Supabase library -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-"use strict";
+/* SUPABASE CONNECTION */
 
-/* SUPABASE CONFIGURATION */
+const SUPABASE_URL = "https://vnfbxbwtvtwigijflbgl.supabase.co";
 
-const SUPABASE_URL =
-  "https://vnfbxbwtvtwigijflbgl.supabase.co";
+const SUPABASE_KEY = "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
 
-const SUPABASE_KEY =
-  "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 /* ELEMENTS */
 
 const loginBox = document.getElementById("loginBox");
 const dashboard = document.getElementById("dashboard");
 const loginForm = document.getElementById("loginForm");
-const message = document.getElementById("message");
 const loginBtn = document.getElementById("loginBtn");
 
-let supabaseClient;
-
 /* HELPERS */
-
-function showMessage(text) {
-  message.textContent = text;
-}
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -292,29 +326,17 @@ function escapeHTML(value) {
     ">": "&gt;",
     '"': "&quot;",
     "'": "&#39;"
-  }[char]));
+  })[char]);
 }
 
 function money(value) {
-  return "₹" + Number(value || 0).toLocaleString("en-IN");
+  return "₹" + Number(value || 0).toLocaleString("en-IN", {
+    maximumFractionDigits: 2
+  });
 }
 
-/* CONNECT TO SUPABASE */
-
-try {
-  if (!window.supabase) {
-    throw new Error("Supabase library did not load. Check internet connection.");
-  }
-
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-  showMessage("Connected to Supabase. Please log in.");
-
-} catch (error) {
-  showMessage("Connection error: " + error.message);
+function showMessage(message) {
+  document.getElementById("loginMessage").textContent = message;
 }
 
 /* LOAD ORDERS */
@@ -362,7 +384,15 @@ async function loadOrders() {
       return;
     }
 
-    output.innerHTML = orders.map(order => {
+    const statuses = [
+      "Pending",
+      "Processing",
+      "Shipped",
+      "Delivered",
+      "Cancelled"
+    ];
+
+    output.innerHTML = orders.map((order, index) => {
       const items = typeof order.items === "string"
         ? order.items
         : JSON.stringify(order.items || []);
@@ -370,6 +400,24 @@ async function loadOrders() {
       const date = order.created_at
         ? new Date(order.created_at).toLocaleString("en-IN")
         : "-";
+
+      const currentStatus = String(order.status || "Pending");
+
+      const availableStatuses = [...statuses];
+
+      if (!availableStatuses.some(
+        status => status.toLowerCase() === currentStatus.toLowerCase()
+      )) {
+        availableStatuses.push(currentStatus);
+      }
+
+      const options = availableStatuses.map(status =>
+        `<option value="${escapeHTML(status)}"
+          ${currentStatus.toLowerCase() === status.toLowerCase()
+            ? "selected" : ""}>
+          ${escapeHTML(status)}
+        </option>`
+      ).join("");
 
       return `
         <tr>
@@ -381,15 +429,67 @@ async function loadOrders() {
           <td>${escapeHTML(order.pincode)}</td>
           <td>${escapeHTML(items)}</td>
           <td>${money(order.total)}</td>
-          <td>${escapeHTML(order.status)}</td>
+
+          <td>
+            <select class="status-select" data-index="${index}">
+              ${options}
+            </select>
+
+            <button
+              type="button"
+              class="update-btn"
+              data-index="${index}">
+              Update
+            </button>
+          </td>
+
           <td>${escapeHTML(date)}</td>
         </tr>
       `;
     }).join("");
 
+    output.querySelectorAll(".update-btn").forEach(button => {
+      button.addEventListener("click", async () => {
+        const index = Number(button.dataset.index);
+        const select = output.querySelector(
+          `.status-select[data-index="${index}"]`
+        );
+
+        await updateOrderStatus(orders[index].id, select.value, button);
+      });
+    });
+
   } catch (error) {
     output.innerHTML = "";
     info.textContent = "Order loading error: " + error.message;
+  }
+}
+
+/* UPDATE ORDER STATUS */
+
+async function updateOrderStatus(orderId, newStatus, button) {
+  const info = document.getElementById("orderMessage");
+
+  button.disabled = true;
+  button.textContent = "Saving...";
+  info.textContent = "Updating order status...";
+
+  try {
+    const { error } = await supabaseClient
+      .from("orders")
+      .update({ status: newStatus })
+      .eq("id", orderId);
+
+    if (error) throw error;
+
+    info.textContent = "Order status updated successfully.";
+
+    await loadOrders();
+
+  } catch (error) {
+    info.textContent = "Status update error: " + error.message;
+    button.disabled = false;
+    button.textContent = "Update";
   }
 }
 
@@ -407,11 +507,6 @@ async function showDashboard() {
 loginForm.addEventListener("submit", async function(event) {
   event.preventDefault();
 
-  if (!supabaseClient) {
-    showMessage("Supabase connection is not available. Reload the page.");
-    return;
-  }
-
   loginBtn.disabled = true;
   loginBtn.textContent = "Signing in...";
   showMessage("Checking login details...");
@@ -428,7 +523,7 @@ loginForm.addEventListener("submit", async function(event) {
     if (error) throw error;
 
     if (!data.session) {
-      throw new Error("Login succeeded but no session was returned.");
+      throw new Error("No login session was returned.");
     }
 
     showMessage("Login successful.");
@@ -455,7 +550,6 @@ document.getElementById("refreshBtn").addEventListener(
 document.getElementById("logoutBtn").addEventListener(
   "click",
   async function() {
-
     try {
       const { error } = await supabaseClient.auth.signOut();
 
@@ -477,8 +571,6 @@ document.getElementById("logoutBtn").addEventListener(
 /* CHECK EXISTING SESSION */
 
 async function checkLogin() {
-  if (!supabaseClient) return;
-
   try {
     const { data, error } = await supabaseClient.auth.getSession();
 
@@ -500,5 +592,4 @@ checkLogin();
 </script>
 
 </body>
- </html>
- 
+</html>
