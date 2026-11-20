@@ -329,8 +329,14 @@
 
       if (error) throw error;
 
-      alert("Demo order saved successfully!");
-      submitButton.textContent = "Order Saved ✓";
+      alert("Order saved successfully!");
+
+localStorage.removeItem("4lowMartCart");
+cart = [];
+
+renderOrder();
+
+submitButton.textContent = "Order Saved ✓";
 
     } catch (error) {
       console.error("Order error:", error);
