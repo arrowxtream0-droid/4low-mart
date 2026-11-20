@@ -116,7 +116,8 @@ td{color:#ddd}
 const SUPABASE_URL = "https://vnfbxbwtvtwigijflbgl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
 
-alert("Supabase available: " + !!window.supabase);
+document.getElementById("message").textContent =
+  "JavaScript running. Supabase available: " + !!window.supabase;
 
 const supabase = window.supabase.createClient(
  SUPABASE_URL,
