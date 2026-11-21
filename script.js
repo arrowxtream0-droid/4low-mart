@@ -167,9 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     card.appendChild(quickViewButton);
     
-    });
-
-    card.appendChild(quickViewButton);
+  
 
     // ADD TO CART BUTTON
     const button = document.createElement("button");
