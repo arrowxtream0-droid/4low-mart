@@ -148,19 +148,33 @@ if (closeButton) {
     modal.classList.remove("active");
   };
 }
-      details.innerHTML = `
-        <img src="${product.image}" alt="${product.name}">
-        <h2>${product.name}</h2>
-        <p>★ ${product.rating} / 5</p>
-        <p class="quick-view-price">
-          ₹${product.price.toLocaleString("en-IN")}
-        </p>
-        <p><del>₹${product.originalPrice.toLocaleString("en-IN")}</del></p>
-        <p>${product.discount}</p>
-        <button class="add-cart-button" id="quick-view-add-cart">
-          Add to Cart
-        </button>
-      `;
+      
+details.innerHTML = `
+  <img src="${product.image}" alt="${product.name}">
+  <h2>${product.name}</h2>
+  <p>★ ${product.rating} / 5</p>
+
+  <p class="quick-view-price">
+    ₹${product.price.toLocaleString("en-IN")}
+  </p>
+
+  <p>
+    <del>₹${product.originalPrice.toLocaleString("en-IN")}</del>
+  </p>
+
+  <p>${product.discount}</p>
+
+  <div class="quick-view-quantity">
+    <button type="button" id="quick-view-minus">−</button>
+    <span id="quick-view-quantity">1</span>
+    <button type="button" id="quick-view-plus">+</button>
+  </div>
+
+  <button class="add-cart-button" id="quick-view-add-cart">
+    Add to Cart
+  </button>
+`;
+      
 
       modal.classList.add("active");
 modal.addEventListener("click", function(event) {
