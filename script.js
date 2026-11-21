@@ -130,18 +130,43 @@ document.addEventListener("DOMContentLoaded", () => {
     card.append(rating, priceBox);
 
     
+    
     // QUICK VIEW BUTTON
     const quickViewButton = document.createElement("button");
     quickViewButton.className = "quick-view-button";
     quickViewButton.textContent = "Quick View";
 
     quickViewButton.addEventListener("click", () => {
-      alert(
-        product.name +
-        "\n\nPrice: ₹" + product.price.toLocaleString("en-IN") +
-        "\nRating: " + product.rating + " / 5" +
-        "\nDiscount: " + product.discount
-      );
+      const modal = document.querySelector("#quick-view-modal");
+      const details = document.querySelector("#quick-view-details");
+
+      if (!modal || !details) return;
+
+      details.innerHTML = `
+        <img src="${product.image}" alt="${product.name}">
+        <h2>${product.name}</h2>
+        <p>★ ${product.rating} / 5</p>
+        <p class="quick-view-price">
+          ₹${product.price.toLocaleString("en-IN")}
+        </p>
+        <p><del>₹${product.originalPrice.toLocaleString("en-IN")}</del></p>
+        <p>${product.discount}</p>
+        <button class="add-cart-button" id="quick-view-add-cart">
+          Add to Cart
+        </button>
+      `;
+
+      modal.classList.add("active");
+
+      document.querySelector("#quick-view-add-cart")
+        .addEventListener("click", () => {
+          addToCart(product);
+          modal.classList.remove("active");
+        });
+    });
+
+    card.appendChild(quickViewButton);
+    
     });
 
     card.appendChild(quickViewButton);
