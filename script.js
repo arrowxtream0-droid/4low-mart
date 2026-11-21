@@ -546,11 +546,11 @@ async function initializeStore() {
       }
 
       if (!auth.currentUser) {
-        alert("Please create an account or log in before checkout.");
-        return;
-      }
+  window.location.href = "account.html?redirect=checkout.html";
+  return;
+}
 
-      window.location.href = "checkout.html";
+window.location.href = "checkout.html";
     });
   }
 
