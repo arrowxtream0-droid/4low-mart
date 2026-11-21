@@ -1,287 +1,442 @@
 
-document.addEventListener("DOMContentLoaded", () => {
-const SUPABASE_URL = "https://vnfbxbwtvtwigijflbgl.supabase.co";
+document.addEventListener("DOMContentLoaded", async () => {
 
-const SUPABASE_KEY = "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
+  // =====================================
+  // 1. SUPABASE CONNECTION
+  // =====================================
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-  // =========================
-  // 1. CART DATA
-  // =========================
+  const SUPABASE_URL =
+    "https://vnfbxbwtvtwigijflbgl.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
+
+  if (!window.supabase) {
+    console.error("Supabase library is not loaded.");
+    alert("Store connection failed. Please refresh the page.");
+    return;
+  }
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  // =====================================
+  // 2. PAGE ELEMENTS
+  // =====================================
+
+  const productGrid =
+    document.querySelector(".product-grid");
+
+  const searchInput =
+    document.querySelector(".search-box input");
+
+  const searchButton =
+    document.querySelector(".search-box button");
+
+  const cartToggle =
+    document.querySelector("#cart-toggle");
+
+  const cartDrawer =
+    document.querySelector("#cart-drawer");
+
+  const cartOverlay =
+    document.querySelector("#cart-overlay");
+
+  const cartClose =
+    document.querySelector("#cart-close");
+
+  const cartItems =
+    document.querySelector("#cart-items");
+
+  const cartCount =
+    document.querySelector(".nav a:last-child");
+
+  const cartTotal =
+    document.querySelector("#cart-total");
+
+  const continueShopping =
+    document.querySelector("#continue-shopping");
+
+  const checkoutButton =
+    document.querySelector("#checkout-button");
+
+  const quickViewModal =
+    document.querySelector("#quick-view-modal");
+
+  const quickViewDetails =
+    document.querySelector("#quick-view-details");
+
+  // =====================================
+  // 3. CART DATA
+  // =====================================
 
   let cart = [];
 
   try {
-    const savedCart = localStorage.getItem("4lowMartCart");
+    const savedCart =
+      localStorage.getItem("4lowMartCart");
 
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
-      if (Array.isArray(parsedCart)) cart = parsedCart;
+
+      if (Array.isArray(parsedCart)) {
+        cart = parsedCart.filter(item =>
+          item &&
+          typeof item.name === "string" &&
+          Number.isFinite(Number(item.price)) &&
+          Number.isFinite(Number(item.quantity)) &&
+          Number(item.quantity) > 0
+        );
+      }
     }
   } catch (error) {
+    console.error("Cart loading error:", error);
     localStorage.removeItem("4lowMartCart");
   }
 
-  // =========================
-  // 2. PAGE ELEMENTS
-  // =========================
+  // =====================================
+  // 4. PRODUCT DATA
+  // =====================================
 
-  const cards = document.querySelectorAll(".product-card");
-  const searchInput = document.querySelector(".search-box input");
-  const searchButton = document.querySelector(".search-box button");
+  let products = [];
 
-  const cartToggle = document.querySelector("#cart-toggle");
-  const cartDrawer = document.querySelector("#cart-drawer");
-  const cartOverlay = document.querySelector("#cart-overlay");
-  const cartClose = document.querySelector("#cart-close");
-  const cartItems = document.querySelector("#cart-items");
-  const cartCount = document.querySelector(".nav a:last-child");
-  const cartTotal = document.querySelector("#cart-total");
-  const continueShopping = document.querySelector("#continue-shopping");
-  const checkoutButton = document.querySelector("#checkout-button");
+  // =====================================
+  // 5. LOAD PRODUCTS FROM SUPABASE
+  // =====================================
 
-  // =========================
-  // 3. PRODUCT DATA
-  // =========================
+  async function loadProducts() {
 
-  const products = [
-    {
-      name: "Wireless Headphones",
-      price: 1499,
-      originalPrice: 2499,
-      rating: 4.5,
-      discount: "40% OFF",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
-    },
-    {
-      name: "Smart Watch",
-      price: 1999,
-      originalPrice: 2999,
-      rating: 4.3,
-      discount: "33% OFF",
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80"
-    },
-    {
-      name: "Sports Shoes",
-      price: 2499,
-      originalPrice: 3499,
-      rating: 4.6,
-      discount: "29% OFF",
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
-    },
-    {
-      name: "Everyday Backpack",
-      price: 999,
-      originalPrice: 1499,
-      rating: 4.2,
-      discount: "33% OFF",
-      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80"
-    }
-  ];
-
-  // =========================
-  // 4. PRODUCT CARD DESIGN
-  // =========================
-
-  cards.forEach((card, index) => {
-    const product = products[index];
-    if (!product) return;
-
-    const imageBox = card.querySelector(".product-image");
-
-    if (imageBox) {
-      const img = document.createElement("img");
-
-      img.src = product.image;
-      img.alt = product.name;
-      img.loading = "lazy";
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "contain";
-
-      imageBox.replaceChildren(img);
-
-      const discount = document.createElement("span");
-      discount.className = "product-discount";
-      discount.textContent = product.discount;
-
-      imageBox.appendChild(discount);
+    if (productGrid) {
+      productGrid.innerHTML =
+        "<p class='product-loading'>Loading products...</p>";
     }
 
-    // Product rating
+    const { data, error } = await supabaseClient
+      .from("products")
+      .select(
+        "id, name, price, original_price, rating, discount, image, active"
+      )
+      .eq("active", true)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Product loading error:", error);
+
+      if (productGrid) {
+        productGrid.innerHTML =
+          "<p>Unable to load products. Please refresh and try again.</p>";
+      }
+
+      return;
+    }
+
+    products = (data || []).filter(product =>
+      product.name &&
+      Number.isFinite(Number(product.price)) &&
+      Number.isFinite(Number(product.id))
+    ).map(product => ({
+      id: product.id,
+      name: product.name,
+      price: Number(product.price),
+      originalPrice: Number(
+        product.original_price ?? product.price
+      ),
+      rating: Number(product.rating || 0),
+      discount: product.discount || "",
+      image: product.image || "",
+      active: product.active
+    }));
+
+    renderProducts();
+  }
+
+  // =====================================
+  // 6. PRODUCT CARD CREATION
+  // =====================================
+
+  function renderProducts() {
+
+    if (!productGrid) {
+      console.error(
+        "Product grid not found. Check index.html for .product-grid."
+      );
+      return;
+    }
+
+    productGrid.replaceChildren();
+
+    if (products.length === 0) {
+      const message = document.createElement("p");
+      message.textContent = "No products available right now.";
+      productGrid.appendChild(message);
+      return;
+    }
+
+    products.forEach(product => {
+
+      const card = document.createElement("div");
+      card.className = "product-card";
+
+      // Product image area
+      const imageBox = document.createElement("div");
+      imageBox.className = "product-image";
+
+      if (product.image) {
+        const image = document.createElement("img");
+
+        image.src = product.image;
+        image.alt = product.name;
+        image.loading = "lazy";
+
+        imageBox.appendChild(image);
+      }
+
+      if (product.discount) {
+        const discount = document.createElement("span");
+
+        discount.className = "product-discount";
+        discount.textContent = product.discount;
+
+        imageBox.appendChild(discount);
+      }
+
+      // Product name
+      const heading = document.createElement("h3");
+      heading.textContent = product.name;
+
+      // Rating
+      const rating = document.createElement("p");
+      rating.className = "product-rating";
+      rating.textContent = "★ " + product.rating + " / 5";
+
+      // Prices
+      const priceBox = document.createElement("div");
+      priceBox.className = "product-price-box";
+
+      const price = document.createElement("p");
+      price.className = "product-price";
+      price.textContent =
+        "₹" + product.price.toLocaleString("en-IN");
+
+      const originalPrice = document.createElement("span");
+      originalPrice.className = "product-original-price";
+      originalPrice.textContent =
+        "₹" + product.originalPrice.toLocaleString("en-IN");
+
+      priceBox.append(price, originalPrice);
+
+      // Quick View button
+      const quickButton = document.createElement("button");
+      quickButton.className = "quick-view-button";
+      quickButton.textContent = "Quick View";
+
+      quickButton.addEventListener("click", () => {
+        openQuickView(product);
+      });
+
+      // Add to Cart button
+      const addButton = document.createElement("button");
+      addButton.className = "add-cart-button";
+      addButton.textContent = "Add to Cart";
+
+      addButton.addEventListener("click", () => {
+        addToCart(product);
+
+        addButton.textContent = "Added ✓";
+        addButton.disabled = true;
+
+        setTimeout(() => {
+          addButton.textContent = "Add to Cart";
+          addButton.disabled = false;
+        }, 1000);
+      });
+
+      card.append(
+        imageBox,
+        heading,
+        rating,
+        priceBox,
+        quickButton,
+        addButton
+      );
+
+      productGrid.appendChild(card);
+    });
+
+    searchProducts();
+  }
+
+  // =====================================
+  // 7. QUICK VIEW
+  // =====================================
+
+  function openQuickView(product) {
+
+    if (!quickViewModal || !quickViewDetails) {
+      console.error("Quick View HTML elements not found.");
+      return;
+    }
+
+    quickViewDetails.replaceChildren();
+
+    const image = document.createElement("img");
+    image.src = product.image;
+    image.alt = product.name;
+
+    const heading = document.createElement("h2");
+    heading.textContent = product.name;
+
     const rating = document.createElement("p");
-    rating.className = "product-rating";
-    rating.textContent = `★ ${product.rating} / 5`;
+    rating.textContent = "★ " + product.rating + " / 5";
 
-    // Original price
-    const originalPrice = document.createElement("span");
-    originalPrice.className = "product-original-price";
-    originalPrice.textContent =
-      "₹" + product.originalPrice.toLocaleString("en-IN");
-
-    // Current price
     const price = document.createElement("p");
-    price.className = "product-price";
+    price.className = "quick-view-price";
     price.textContent =
       "₹" + product.price.toLocaleString("en-IN");
 
-    // Price section
-    const priceBox = document.createElement("div");
-    priceBox.className = "product-price-box";
-    priceBox.append(price, originalPrice);
+    const originalPrice = document.createElement("p");
+    const del = document.createElement("del");
 
-    // Add product information
-    card.append(rating, priceBox);
+    del.textContent =
+      "₹" + product.originalPrice.toLocaleString("en-IN");
 
-    
-    
-    // QUICK VIEW BUTTON
-    const quickViewButton = document.createElement("button");
-    quickViewButton.className = "quick-view-button";
-    quickViewButton.textContent = "Quick View";
+    originalPrice.appendChild(del);
 
-    quickViewButton.addEventListener("click", () => {
-      const modal = document.querySelector("#quick-view-modal");
-      const details = document.querySelector("#quick-view-details");
+    const discount = document.createElement("p");
+    discount.textContent = product.discount;
 
-      if (!modal || !details) return;
-const closeButton = document.querySelector("#quick-view-close");
+    const quantityBox = document.createElement("div");
+    quantityBox.className = "quick-view-quantity";
 
-if (closeButton) {
-  closeButton.onclick = () => {
-    modal.classList.remove("active");
-  };
-}
-      
-details.innerHTML = `
-  <img src="${product.image}" alt="${product.name}">
-  <h2>${product.name}</h2>
-  <p>★ ${product.rating} / 5</p>
+    const minus = document.createElement("button");
+    minus.type = "button";
+    minus.textContent = "−";
 
-  <p class="quick-view-price">
-    ₹${product.price.toLocaleString("en-IN")}
-  </p>
+    const quantityDisplay = document.createElement("span");
+    quantityDisplay.textContent = "1";
 
-  <p>
-    <del>₹${product.originalPrice.toLocaleString("en-IN")}</del>
-  </p>
+    const plus = document.createElement("button");
+    plus.type = "button";
+    plus.textContent = "+";
 
-  <p>${product.discount}</p>
+    quantityBox.append(minus, quantityDisplay, plus);
 
-  <div class="quick-view-quantity">
-    <button type="button" id="quick-view-minus">−</button>
-    <span id="quick-view-quantity">1</span>
-    <button type="button" id="quick-view-plus">+</button>
-  </div>
+    const addButton = document.createElement("button");
+    addButton.className = "add-cart-button";
+    addButton.textContent = "Add to Cart";
 
-  <button class="add-cart-button" id="quick-view-add-cart">
-    Add to Cart
-  </button>
-`;
-      
+    let selectedQuantity = 1;
 
-      modal.classList.add("active");
-
-let selectedQuantity = 1;
-
-const quantityDisplay = document.querySelector("#quick-view-quantity");
-const minusButton = document.querySelector("#quick-view-minus");
-const plusButton = document.querySelector("#quick-view-plus");
-
-minusButton.addEventListener("click", () => {
-  if (selectedQuantity > 1) {
-    selectedQuantity--;
-    quantityDisplay.textContent = selectedQuantity;
-  }
-});
-
-plusButton.addEventListener("click", () => {
-  selectedQuantity++;
-  quantityDisplay.textContent = selectedQuantity;
-});
-
-modal.addEventListener("click", function(event) {
-  if (event.target.id === "quick-view-modal") {
-    modal.classList.remove("active");
-  }
-});
-
-document.querySelector("#quick-view-add-cart")
-  .addEventListener("click", () => {
-    addToCart(product, selectedQuantity);
-    modal.classList.remove("active");
-  });
-});
-
-    card.appendChild(quickViewButton);
-    
-  
-
-    // ADD TO CART BUTTON
-    const button = document.createElement("button");
-    button.className = "add-cart-button";
-    button.textContent = "Add to Cart";
-
-    button.addEventListener("click", () => {
-      addToCart(product);
-
-      button.textContent = "Added ✓";
-      button.disabled = true;
-
-      setTimeout(() => {
-        button.textContent = "Add to Cart";
-        button.disabled = false;
-      }, 1000);
+    minus.addEventListener("click", () => {
+      if (selectedQuantity > 1) {
+        selectedQuantity--;
+        quantityDisplay.textContent = selectedQuantity;
+      }
     });
 
-    card.appendChild(button);
-  });
-  
+    plus.addEventListener("click", () => {
+      selectedQuantity++;
+      quantityDisplay.textContent = selectedQuantity;
+    });
 
-  // =========================
-  // 5. SAVE CART
-  // =========================
+    addButton.addEventListener("click", () => {
+      addToCart(product, selectedQuantity);
+      closeQuickView();
+    });
 
-  function saveCart() {
-    localStorage.setItem("4lowMartCart", JSON.stringify(cart));
+    quickViewDetails.append(
+      image,
+      heading,
+      rating,
+      price,
+      originalPrice,
+      discount,
+      quantityBox,
+      addButton
+    );
+
+    quickViewModal.classList.add("active");
   }
 
-  // =========================
-  // 6. ADD TO CART
-  // =========================
+  function closeQuickView() {
+    if (quickViewModal) {
+      quickViewModal.classList.remove("active");
+    }
+  }
 
-  
-function addToCart(product, quantity = 1) {
-    const existing = cart.find(item => item.name === product.name);
+  const quickViewClose =
+    document.querySelector("#quick-view-close");
+
+  if (quickViewClose) {
+    quickViewClose.addEventListener("click", closeQuickView);
+  }
+
+  if (quickViewModal) {
+    quickViewModal.addEventListener("click", event => {
+      if (event.target === quickViewModal) {
+        closeQuickView();
+      }
+    });
+  }
+
+  // =====================================
+  // 8. SAVE CART
+  // =====================================
+
+  function saveCart() {
+    try {
+      localStorage.setItem(
+        "4lowMartCart",
+        JSON.stringify(cart)
+      );
+    } catch (error) {
+      console.error("Unable to save cart:", error);
+    }
+  }
+
+  // =====================================
+  // 9. ADD TO CART
+  // =====================================
+
+  function addToCart(product, quantity = 1) {
+
+    const existing = cart.find(item =>
+      String(item.id) === String(product.id)
+    );
 
     if (existing) {
       existing.quantity += quantity;
     } else {
-      cart.push({ ...product, quantity: quantity });
+      cart.push({
+        ...product,
+        quantity: quantity
+      });
     }
 
     renderCart();
-}
-  
+  }
 
-  // =========================
-  // 7. RENDER CART
-  // =========================
+  // =====================================
+  // 10. RENDER CART
+  // =====================================
 
   function renderCart() {
+
     const totalQuantity = cart.reduce(
-      (sum, item) => sum + item.quantity, 0
+      (sum, item) => sum + item.quantity,
+      0
     );
 
     const totalPrice = cart.reduce(
-      (sum, item) => sum + item.price * item.quantity, 0
+      (sum, item) => sum + item.price * item.quantity,
+      0
     );
 
     if (cartCount) {
-      cartCount.textContent = `Cart (${totalQuantity})`;
+      cartCount.textContent =
+        `Cart (${totalQuantity})`;
     }
 
     if (cartTotal) {
@@ -300,22 +455,25 @@ function addToCart(product, quantity = 1) {
       const empty = document.createElement("p");
       empty.className = "empty-cart";
       empty.textContent = "Your cart is empty.";
+
       cartItems.appendChild(empty);
     }
 
     cart.forEach(item => {
+
       const row = document.createElement("div");
       row.className = "cart-product";
 
-      const img = document.createElement("img");
-      img.className = "cart-product-icon";
-      img.src = item.image || "";
-      img.alt = item.name;
-      img.style.width = "85px";
-      img.style.height = "85px";
-      img.style.objectFit = "contain";
-      img.style.borderRadius = "8px";
-      img.style.background = "#222";
+      const image = document.createElement("img");
+      image.className = "cart-product-icon";
+      image.src = item.image || "";
+      image.alt = item.name;
+
+      image.style.width = "85px";
+      image.style.height = "85px";
+      image.style.objectFit = "contain";
+      image.style.borderRadius = "8px";
+      image.style.background = "#222";
 
       const details = document.createElement("div");
       details.className = "cart-product-details";
@@ -332,8 +490,9 @@ function addToCart(product, quantity = 1) {
 
       const minus = document.createElement("button");
       minus.textContent = "−";
+
       minus.addEventListener("click", () => {
-        changeQuantity(item.name, -1);
+        changeQuantity(item.id, -1);
       });
 
       const quantity = document.createElement("span");
@@ -341,58 +500,76 @@ function addToCart(product, quantity = 1) {
 
       const plus = document.createElement("button");
       plus.textContent = "+";
+
       plus.addEventListener("click", () => {
-        changeQuantity(item.name, 1);
+        changeQuantity(item.id, 1);
       });
 
       const remove = document.createElement("button");
       remove.className = "cart-remove";
       remove.textContent = "Remove";
+
       remove.addEventListener("click", () => {
-        removeItem(item.name);
+        removeItem(item.id);
       });
 
       controls.append(minus, quantity, plus);
-      details.append(name, price, controls, remove);
-      row.append(img, details);
+
+      details.append(
+        name,
+        price,
+        controls,
+        remove
+      );
+
+      row.append(image, details);
       cartItems.appendChild(row);
     });
 
     saveCart();
   }
 
-  // =========================
-  // 8. CHANGE QUANTITY
-  // =========================
+  // =====================================
+  // 11. CHANGE QUANTITY
+  // =====================================
 
-  function changeQuantity(name, amount) {
-    const item = cart.find(product => product.name === name);
+  function changeQuantity(id, amount) {
+
+    const item = cart.find(product =>
+      String(product.id) === String(id)
+    );
+
     if (!item) return;
 
     item.quantity += amount;
 
     if (item.quantity <= 0) {
-      removeItem(name);
+      removeItem(id);
       return;
     }
 
     renderCart();
   }
 
-  // =========================
-  // 9. REMOVE PRODUCT
-  // =========================
+  // =====================================
+  // 12. REMOVE PRODUCT
+  // =====================================
 
-  function removeItem(name) {
-    cart = cart.filter(item => item.name !== name);
+  function removeItem(id) {
+
+    cart = cart.filter(item =>
+      String(item.id) !== String(id)
+    );
+
     renderCart();
   }
 
-  // =========================
-  // 10. OPEN AND CLOSE CART
-  // =========================
+  // =====================================
+  // 13. CART OPEN AND CLOSE
+  // =====================================
 
   function openCart() {
+
     if (!cartDrawer || !cartOverlay) return;
 
     cartDrawer.classList.add("active");
@@ -400,8 +577,14 @@ function addToCart(product, quantity = 1) {
   }
 
   function closeCart() {
-    if (cartDrawer) cartDrawer.classList.remove("active");
-    if (cartOverlay) cartOverlay.classList.remove("active");
+
+    if (cartDrawer) {
+      cartDrawer.classList.remove("active");
+    }
+
+    if (cartOverlay) {
+      cartOverlay.classList.remove("active");
+    }
   }
 
   if (cartToggle) {
@@ -423,60 +606,88 @@ function addToCart(product, quantity = 1) {
     continueShopping.addEventListener("click", closeCart);
   }
 
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeCart();
-  });
-
-  // =========================
-  // 11. SEARCH PRODUCTS
-  // =========================
+  // =====================================
+  // 14. SEARCH PRODUCTS
+  // =====================================
 
   function searchProducts() {
-    if (!searchInput) return;
 
-    const query = searchInput.value.trim().toLowerCase();
+    if (!searchInput || !productGrid) return;
+
+    const query =
+      searchInput.value.trim().toLowerCase();
+
+    const cards =
+      productGrid.querySelectorAll(".product-card");
 
     cards.forEach(card => {
+
       const heading = card.querySelector("h3");
+
       const name = heading
         ? heading.textContent.toLowerCase()
         : "";
 
-      card.style.display = name.includes(query) ? "" : "none";
+      card.style.display =
+        name.includes(query) ? "" : "none";
     });
   }
 
   if (searchInput) {
-    searchInput.addEventListener("input", searchProducts);
+    searchInput.addEventListener(
+      "input",
+      searchProducts
+    );
 
     searchInput.addEventListener("keydown", event => {
-      if (event.key === "Enter") searchProducts();
-    });
-  }
-
-  if (searchButton) {
-    searchButton.addEventListener("click", searchProducts);
-  }
-
-  // =========================
-  // 12. CHECKOUT
-  // =========================
-
-  if (checkoutButton) {
-    checkoutButton.addEventListener("click", () => {
-      if (cart.length === 0) {
-        alert("Your cart is empty!");
-      } else {
-        window.location.href = "checkout.html";
+      if (event.key === "Enter") {
+        searchProducts();
       }
     });
   }
 
-  // =========================
-  // 13. INITIAL CART DISPLAY
-  // =========================
+  if (searchButton) {
+    searchButton.addEventListener(
+      "click",
+      searchProducts
+    );
+  }
+
+  // =====================================
+  // 15. CHECKOUT
+  // =====================================
+
+  if (checkoutButton) {
+    checkoutButton.addEventListener("click", () => {
+
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+
+      window.location.href = "checkout.html";
+    });
+  }
+
+  // =====================================
+  // 16. KEYBOARD CONTROLS
+  // =====================================
+
+  document.addEventListener("keydown", event => {
+
+    if (event.key === "Escape") {
+      closeCart();
+      closeQuickView();
+    }
+  });
+
+  // =====================================
+  // 17. INITIALIZE
+  // =====================================
 
   renderCart();
 
+  await loadProducts();
+
 });
-                     
+  
