@@ -289,61 +289,143 @@
 
         <h2>Delivery Details</h2>
 
-        <form id="checkout-form">
+        
+<form id="checkout-form">
 
-          <input
-            type="text"
-            id="name"
-            placeholder="Full Name"
-            maxlength="80"
-            autocomplete="name"
-            required
-          >
+  <!-- STEP 1: ADDRESS -->
 
-          <input
-            type="tel"
-            id="phone"
-            placeholder="10-digit Mobile Number"
-            inputmode="numeric"
-            pattern="[6-9][0-9]{9}"
-            maxlength="10"
-            autocomplete="tel"
-            required
-          >
+  <div class="checkout-step" id="step-address">
 
-          <textarea
-            id="address"
-            placeholder="Full Delivery Address"
-            maxlength="300"
-            autocomplete="street-address"
-            required
-          ></textarea>
+    <h2>Delivery Address</h2>
 
-          <input
-            type="text"
-            id="city"
-            placeholder="City"
-            maxlength="60"
-            autocomplete="address-level2"
-            required
-          >
+    <input
+      type="text"
+      id="name"
+      placeholder="Full Name"
+      maxlength="80"
+      autocomplete="name"
+      required
+    >
 
-          <input
-            type="text"
-            id="pincode"
-            placeholder="6-digit PIN Code"
-            inputmode="numeric"
-            pattern="[1-9][0-9]{5}"
-            maxlength="6"
-            autocomplete="postal-code"
-            required
-          >
+    <input
+      type="tel"
+      id="phone"
+      placeholder="10-digit Mobile Number"
+      inputmode="numeric"
+      pattern="[6-9][0-9]{9}"
+      maxlength="10"
+      autocomplete="tel"
+      required
+    >
 
-          <button type="submit" id="submit-button">
-            Continue to Payment
-          </button>
+    <textarea
+      id="address"
+      placeholder="Full Delivery Address"
+      maxlength="300"
+      required
+    ></textarea>
 
-        </form>
+    <input
+      type="text"
+      id="city"
+      placeholder="City"
+      maxlength="60"
+      required
+    >
+
+    <input
+      type="text"
+      id="pincode"
+      placeholder="6-digit PIN Code"
+      inputmode="numeric"
+      pattern="[1-9][0-9]{5}"
+      maxlength="6"
+      required
+    >
+
+    <button type="button" id="to-payment">
+      Continue to Payment
+    </button>
+
+  </div>
+
+
+  <!-- STEP 2: PAYMENT -->
+
+  <div class="checkout-step" id="step-payment" hidden>
+
+    <h2>Select Payment Method</h2>
+
+    <label>
+      <input
+        type="radio"
+        name="payment-method"
+        value="UPI"
+        required
+      >
+      UPI
+    </label>
+
+    <br><br>
+
+    <label>
+      <input
+        type="radio"
+        name="payment-method"
+        value="Debit/Credit Card"
+      >
+      Debit / Credit Card
+    </label>
+
+    <br><br>
+
+    <label>
+      <input
+        type="radio"
+        name="payment-method"
+        value="Cash on Delivery"
+      >
+      Cash on Delivery
+    </label>
+
+    <button type="button" id="to-address">
+      Back to Address
+    </button>
+
+    <button type="button" id="to-confirm">
+      Continue to Confirm Order
+    </button>
+
+  </div>
+
+
+  <!-- STEP 3: CONFIRM ORDER -->
+
+  <div class="checkout-step" id="step-confirm" hidden>
+
+    <h2>Review Your Order</h2>
+
+    <div id="review-address"></div>
+
+    <p id="review-payment"></p>
+
+    <p class="notice">
+      Please check your delivery details and order summary
+      before confirming.
+    </p>
+
+    <button type="button" id="back-to-payment">
+      Back to Payment
+    </button>
+
+    <button type="submit" id="submit-button">
+      Confirm Order
+    </button>
+
+  </div>
+
+</form>
+        
 
       </div>
 
