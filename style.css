@@ -1063,7 +1063,9 @@ transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .quick-view-modal.active {
-  display: flex;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .quick-view-content {
@@ -1127,4 +1129,11 @@ transition: opacity 0.25s ease, visibility 0.25s ease;
     padding: 18px;
   }
 }
+.quick-view-content {
+  transform: scale(0.92);
+  transition: transform 0.25s ease;
+}
 
+.quick-view-modal.active .quick-view-content {
+  transform: scale(1);
+}
