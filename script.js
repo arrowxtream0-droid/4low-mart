@@ -163,11 +163,11 @@ if (closeButton) {
       `;
 
       modal.classList.add("active");
-modal.onclick = (event) => {
-  if (event.target === modal) {
+modal.addEventListener("click", function(event) {
+  if (event.target.id === "quick-view-modal") {
     modal.classList.remove("active");
   }
-};
+});
       document.querySelector("#quick-view-add-cart")
         .addEventListener("click", () => {
           addToCart(product);
