@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
 
       const snapshot = await getDocs(productsQuery);
-
+alert("Firebase connected. Documents found: " + snapshot.size);
       products = snapshot.docs.map(document => {
         const data = document.data();
 
