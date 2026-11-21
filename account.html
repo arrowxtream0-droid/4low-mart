@@ -369,16 +369,23 @@
     });
 
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        authSection.classList.add("hidden");
-        userSection.classList.remove("hidden");
-        userEmail.textContent = user.email || "Signed-in customer";
-      } else {
-        authSection.classList.remove("hidden");
-        userSection.classList.add("hidden");
-        userEmail.textContent = "";
-      }
-    });
+  if (user) {
+    authSection.classList.add("hidden");
+    userSection.classList.remove("hidden");
+    userEmail.textContent = user.email || "Signed-in customer";
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("redirect") === "checkout.html") {
+      window.location.href = "checkout.html";
+    }
+
+  } else {
+    authSection.classList.remove("hidden");
+    userSection.classList.add("hidden");
+    userEmail.textContent = "";
+  }
+});
   </script>
 
 </body>
