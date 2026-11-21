@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090909">
+  <title>My Account | 4LOW-MART</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #090909;
+      color: #FFFFFF;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 22px 7%;
+      border-bottom: 1px solid #252525;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      color: #FF6B2C;
+      font-size: 25px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    header a.back {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 440px;
+      margin: 65px auto;
+    }
+
+    .heading {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .heading h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .heading p {
+      color: #999;
+      font-size: 14px;
+    }
+
+    .account-box {
+      background: #141414;
+      border: 1px solid #292929;
+      border-radius: 15px;
+      padding: 28px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 13px;
+      border: 1px solid #333;
+      background: #202020;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .tabs button.active {
+      background: #FF6B2C;
+      border-color: #FF6B2C;
+      color: #090909;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      background: #090909;
+      color: white;
+      border: 1px solid #393939;
+      border-radius: 8px;
+      outline: none;
+      font-size: 15px;
+    }
+
+    input:focus {
+      border-color: #FF6B2C;
+    }
+
+    .main-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 24px;
+      background: #FF6B2C;
+      border: none;
+      border-radius: 8px;
+      color: #090909;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .main-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #message {
+      margin-top: 18px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #FF9A70;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .account-info {
+      text-align: center;
+    }
+
+    .account-info h2 {
+      margin-bottom: 12px;
+    }
+
+    .account-info p {
+      color: #aaa;
+      overflow-wrap: anywhere;
+      margin-bottom: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #777;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a href="index.html" class="logo">4LOW-MART</a>
+    <a href="index.html" class="back">← Back to Store</a>
+  </header>
+
+  <main class="container">
+
+    <div class="heading">
+      <h1>My Account</h1>
+      <p>Welcome to 4LOW-MART</p>
+    </div>
+
+    <section class="account-box">
+
+      <div id="authSection">
+
+        <div class="tabs">
+          <button id="loginTab" class="active" type="button">
+            Login
+          </button>
+
+          <button id="signupTab" type="button">
+            Sign Up
+          </button>
+        </div>
+
+        <form id="accountForm">
+
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          >
+
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            minlength="6"
+            required
+          >
+
+          <button type="submit" class="main-btn" id="submitBtn">
+            Login
+          </button>
+
+        </form>
+
+      </div>
+
+      <div id="userSection" class="account-info hidden">
+        <h2>Welcome!</h2>
+        <p>You are signed in as:</p>
+        <p id="userEmail"></p>
+
+        <button id="logoutBtn" class="main-btn" type="button">
+          Logout
+        </button>
+      </div>
+
+      <p id="message" role="status" aria-live="polite"></p>
+
+    </section>
+  </main>
+
+  <footer>
+    © 2026 4LOW-MART. EVERYTHING. EVERYWHERE.
+  </footer>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+
+    import {
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    const accountForm = document.getElementById("accountForm");
+    const loginTab = document.getElementById("loginTab");
+    const signupTab = document.getElementById("signupTab");
+    const submitBtn = document.getElementById("submitBtn");
+    const message = document.getElementById("message");
+
+    const authSection = document.getElementById("authSection");
+    const userSection = document.getElementById("userSection");
+    const userEmail = document.getElementById("userEmail");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    let currentMode = "login";
+
+    function showMessage(text) {
+      message.textContent = text;
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+
+      loginTab.classList.toggle("active", mode === "login");
+      signupTab.classList.toggle("active", mode === "signup");
+
+      submitBtn.textContent =
+        mode === "login" ? "Login" : "Create Account";
+
+      document.getElementById("password").autocomplete =
+        mode === "login" ? "current-password" : "new-password";
+
+      showMessage("");
+    }
+
+    loginTab.addEventListener("click", () => {
+      setMode("login");
+    });
+
+    signupTab.addEventListener("click", () => {
+      setMode("signup");
+    });
+
+    accountForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (password.length < 6) {
+        showMessage("Password must contain at least 6 characters.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      showMessage("Please wait...");
+
+      try {
+        if (currentMode === "signup") {
+          await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+          showMessage("Account created successfully!");
+        } else {
+          await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+          showMessage("Login successful!");
+        }
+
+        accountForm.reset();
+
+      } catch (error) {
+        const errors = {
+          "auth/email-already-in-use":
+            "This email already has an account. Please log in.",
+          "auth/invalid-email":
+            "Please enter a valid email address.",
+          "auth/weak-password":
+            "Please choose a stronger password.",
+          "auth/invalid-credential":
+            "Incorrect email or password.",
+          "auth/user-not-found":
+            "No account found. Please sign up first.",
+          "auth/wrong-password":
+            "Incorrect password.",
+          "auth/too-many-requests":
+            "Too many attempts. Please try again later.",
+          "auth/network-request-failed":
+            "Network error. Check your internet connection."
+        };
+
+        showMessage(
+          errors[error.code] || "Something went wrong. Please try again."
+        );
+
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showMessage("You have logged out successfully.");
+      } catch (error) {
+        showMessage("Logout failed. Please try again.");
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        authSection.classList.add("hidden");
+        userSection.classList.remove("hidden");
+        userEmail.textContent = user.email || "Signed-in customer";
+      } else {
+        authSection.classList.remove("hidden");
+        userSection.classList.add("hidden");
+        userEmail.textContent = "";
+      }
+    });
+  </script>
+
+</body>
+  </html>
+  
