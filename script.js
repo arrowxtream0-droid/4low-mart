@@ -177,17 +177,37 @@ details.innerHTML = `
       
 
       modal.classList.add("active");
+
+let selectedQuantity = 1;
+
+const quantityDisplay = document.querySelector("#quick-view-quantity");
+const minusButton = document.querySelector("#quick-view-minus");
+const plusButton = document.querySelector("#quick-view-plus");
+
+minusButton.addEventListener("click", () => {
+  if (selectedQuantity > 1) {
+    selectedQuantity--;
+    quantityDisplay.textContent = selectedQuantity;
+  }
+});
+
+plusButton.addEventListener("click", () => {
+  selectedQuantity++;
+  quantityDisplay.textContent = selectedQuantity;
+});
+
 modal.addEventListener("click", function(event) {
   if (event.target.id === "quick-view-modal") {
     modal.classList.remove("active");
   }
 });
-      document.querySelector("#quick-view-add-cart")
-        .addEventListener("click", () => {
-          addToCart(product);
-          modal.classList.remove("active");
-        });
-    });
+
+document.querySelector("#quick-view-add-cart")
+  .addEventListener("click", () => {
+    addToCart(product, selectedQuantity);
+    modal.classList.remove("active");
+  });
+});
 
     card.appendChild(quickViewButton);
     
