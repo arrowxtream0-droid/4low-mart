@@ -133,6 +133,21 @@
       cursor: not-allowed;
     }
 
+    .forgot-btn {
+      display: block;
+      margin: 15px 0 0 auto;
+      padding: 0;
+      background: none;
+      border: none;
+      color: #FF9A70;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .forgot-btn:hover {
+      text-decoration: underline;
+    }
+
     #message {
       margin-top: 18px;
       font-size: 13px;
@@ -222,6 +237,14 @@
             Login
           </button>
 
+          <button
+            type="button"
+            class="forgot-btn"
+            id="forgotPasswordBtn"
+          >
+            Forgot Password?
+          </button>
+
         </form>
 
       </div>
@@ -249,17 +272,19 @@
     import { auth } from "./firebase.js";
 
     import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
     const accountForm = document.getElementById("accountForm");
     const loginTab = document.getElementById("loginTab");
     const signupTab = document.getElementById("signupTab");
     const submitBtn = document.getElementById("submitBtn");
+    const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+    const emailInput = document.getElementById("email");
     const message = document.getElementById("message");
 
     const authSection = document.getElementById("authSection");
@@ -285,6 +310,8 @@
       document.getElementById("password").autocomplete =
         mode === "login" ? "current-password" : "new-password";
 
+      forgotPasswordBtn.classList.toggle("hidden", mode !== "login");
+
       showMessage("");
     }
 
@@ -296,10 +323,55 @@
       setMode("signup");
     });
 
+    forgotPasswordBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+
+      if (!email) {
+        showMessage("Enter your registered email address first.");
+        emailInput.focus();
+        return;
+      }
+
+      if (!emailInput.checkValidity()) {
+        showMessage("Please enter a valid email address.");
+        emailInput.focus();
+        return;
+      }
+
+      forgotPasswordBtn.disabled = true;
+      showMessage("Sending password reset email...");
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+
+        showMessage(
+          "If an account exists for this email, a password reset link has been sent. Check your inbox and spam folder."
+        );
+
+      } catch (error) {
+        const errors = {
+          "auth/invalid-email":
+            "Please enter a valid email address.",
+          "auth/too-many-requests":
+            "Too many attempts. Please try again later.",
+          "auth/network-request-failed":
+            "Network error. Check your internet connection."
+        };
+
+        showMessage(
+          errors[error.code] ||
+          "Could not send the reset email. Please try again."
+        );
+
+      } finally {
+        forgotPasswordBtn.disabled = false;
+      }
+    });
+
     accountForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const email = document.getElementById("email").value.trim();
+      const email = emailInput.value.trim();
       const password = document.getElementById("password").value;
 
       if (password.length < 6) {
@@ -370,25 +442,25 @@
     });
 
     onAuthStateChanged(auth, (user) => {
-  if (user) {
-    authSection.classList.add("hidden");
-    userSection.classList.remove("hidden");
-    userEmail.textContent = user.email || "Signed-in customer";
+      if (user) {
+        authSection.classList.add("hidden");
+        userSection.classList.remove("hidden");
+        userEmail.textContent = user.email || "Signed-in customer";
 
-    const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(window.location.search);
 
-    if (params.get("redirect") === "checkout.html") {
-      window.location.href = "checkout.html";
-    }
+        if (params.get("redirect") === "checkout.html") {
+          window.location.href = "checkout.html";
+        }
 
-  } else {
-    authSection.classList.remove("hidden");
-    userSection.classList.add("hidden");
-    userEmail.textContent = "";
-  }
-});
+      } else {
+        authSection.classList.remove("hidden");
+        userSection.classList.add("hidden");
+        userEmail.textContent = "";
+      }
+    });
   </script>
 
 </body>
-  </html>
-  
+        </html>
+        
