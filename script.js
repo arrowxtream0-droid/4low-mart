@@ -1,82 +1,41 @@
 
+import { auth, db } from "./firebase.js";
+
+import {
+  collection,
+  getDocs,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 document.addEventListener("DOMContentLoaded", async () => {
 
-  // =====================================
-  // 1. SUPABASE CONNECTION
-  // =====================================
+  // 1. PAGE ELEMENTS
 
-  const SUPABASE_URL =
-    "https://vnfbxbwtvtwigijflbgl.supabase.co";
+  const productGrid = document.querySelector(".product-grid");
+  const searchInput = document.querySelector(".search-box input");
+  const searchButton = document.querySelector(".search-box button");
 
-  const SUPABASE_KEY =
-    "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
+  const cartToggle = document.querySelector("#cart-toggle");
+  const cartDrawer = document.querySelector("#cart-drawer");
+  const cartOverlay = document.querySelector("#cart-overlay");
+  const cartClose = document.querySelector("#cart-close");
+  const cartItems = document.querySelector("#cart-items");
+  const cartCount = document.querySelector(".nav a:last-child");
+  const cartTotal = document.querySelector("#cart-total");
+  const continueShopping = document.querySelector("#continue-shopping");
+  const checkoutButton = document.querySelector("#checkout-button");
 
-  if (!window.supabase) {
-    console.error("Supabase library is not loaded.");
-    alert("Store connection failed. Please refresh the page.");
-    return;
-  }
+  const quickViewModal = document.querySelector("#quick-view-modal");
+  const quickViewDetails = document.querySelector("#quick-view-details");
+  const quickViewClose = document.querySelector("#quick-view-close");
 
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-  // =====================================
-  // 2. PAGE ELEMENTS
-  // =====================================
-
-  const productGrid =
-    document.querySelector(".product-grid");
-
-  const searchInput =
-    document.querySelector(".search-box input");
-
-  const searchButton =
-    document.querySelector(".search-box button");
-
-  const cartToggle =
-    document.querySelector("#cart-toggle");
-
-  const cartDrawer =
-    document.querySelector("#cart-drawer");
-
-  const cartOverlay =
-    document.querySelector("#cart-overlay");
-
-  const cartClose =
-    document.querySelector("#cart-close");
-
-  const cartItems =
-    document.querySelector("#cart-items");
-
-  const cartCount =
-    document.querySelector(".nav a:last-child");
-
-  const cartTotal =
-    document.querySelector("#cart-total");
-
-  const continueShopping =
-    document.querySelector("#continue-shopping");
-
-  const checkoutButton =
-    document.querySelector("#checkout-button");
-
-  const quickViewModal =
-    document.querySelector("#quick-view-modal");
-
-  const quickViewDetails =
-    document.querySelector("#quick-view-details");
-
-  // =====================================
-  // 3. CART DATA
-  // =====================================
+  // 2. CART DATA
 
   let cart = [];
 
   try {
-    const savedCart =
-      localStorage.getItem("4lowMartCart");
+    const savedCart = localStorage.getItem("4lowMartCart");
 
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
@@ -84,27 +43,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (Array.isArray(parsedCart)) {
         cart = parsedCart.filter(item =>
           item &&
+          item.id !== undefined &&
           typeof item.name === "string" &&
           Number.isFinite(Number(item.price)) &&
           Number.isFinite(Number(item.quantity)) &&
           Number(item.quantity) > 0
-        );
+        ).map(item => ({
+          ...item,
+          price: Number(item.price),
+          quantity: Number(item.quantity)
+        }));
       }
     }
   } catch (error) {
     console.error("Cart loading error:", error);
-    localStorage.removeItem("4lowMartCart");
+    cart = [];
   }
-
-  // =====================================
-  // 4. PRODUCT DATA
-  // =====================================
 
   let products = [];
 
-  // =====================================
-  // 5. LOAD PRODUCTS FROM SUPABASE
-  // =====================================
+  // 3. LOAD PRODUCTS FROM FIRESTORE
 
   async function loadProducts() {
 
@@ -113,57 +71,51 @@ document.addEventListener("DOMContentLoaded", async () => {
         "<p class='product-loading'>Loading products...</p>";
     }
 
-    const { data, error } = await supabaseClient
-      .from("products")
-      .select(
-        "id, name, price, original_price, rating, discount, image, active"
-      )
-      .eq("active", true)
-      .order("created_at", { ascending: false });
+    try {
+      const productsQuery = query(
+        collection(db, "products"),
+        where("active", "==", true)
+      );
 
-    if (error) {
-      console.error("Product loading error:", error);
+      const snapshot = await getDocs(productsQuery);
+
+      products = snapshot.docs.map(document => {
+        const data = document.data();
+
+        return {
+          id: document.id,
+          name: data.name || "Unnamed Product",
+          price: Number(data.price) || 0,
+          originalPrice: Number(
+            data.original_price ?? data.price
+          ) || 0,
+          rating: Number(data.rating) || 0,
+          discount: data.discount || "",
+          image: data.image || "",
+          active: data.active
+        };
+      }).filter(product =>
+        product.name &&
+        product.price > 0
+      );
+
+      renderProducts();
+
+    } catch (error) {
+      console.error("Firebase product loading error:", error);
 
       if (productGrid) {
         productGrid.innerHTML =
-          "<p>Unable to load products. Please refresh and try again.</p>";
+          "<p>Unable to load products. Please check your connection and refresh.</p>";
       }
-
-      return;
     }
-
-    products = (data || []).filter(product =>
-      product.name &&
-      Number.isFinite(Number(product.price)) &&
-      Number.isFinite(Number(product.id))
-    ).map(product => ({
-      id: product.id,
-      name: product.name,
-      price: Number(product.price),
-      originalPrice: Number(
-        product.original_price ?? product.price
-      ),
-      rating: Number(product.rating || 0),
-      discount: product.discount || "",
-      image: product.image || "",
-      active: product.active
-    }));
-
-    renderProducts();
   }
 
-  // =====================================
-  // 6. PRODUCT CARD CREATION
-  // =====================================
+  // 4. RENDER PRODUCTS
 
   function renderProducts() {
 
-    if (!productGrid) {
-      console.error(
-        "Product grid not found. Check index.html for .product-grid."
-      );
-      return;
-    }
+    if (!productGrid) return;
 
     productGrid.replaceChildren();
 
@@ -179,39 +131,31 @@ document.addEventListener("DOMContentLoaded", async () => {
       const card = document.createElement("div");
       card.className = "product-card";
 
-      // Product image area
       const imageBox = document.createElement("div");
       imageBox.className = "product-image";
 
       if (product.image) {
         const image = document.createElement("img");
-
         image.src = product.image;
         image.alt = product.name;
         image.loading = "lazy";
-
         imageBox.appendChild(image);
       }
 
       if (product.discount) {
         const discount = document.createElement("span");
-
         discount.className = "product-discount";
         discount.textContent = product.discount;
-
         imageBox.appendChild(discount);
       }
 
-      // Product name
       const heading = document.createElement("h3");
       heading.textContent = product.name;
 
-      // Rating
       const rating = document.createElement("p");
       rating.className = "product-rating";
       rating.textContent = "★ " + product.rating + " / 5";
 
-      // Prices
       const priceBox = document.createElement("div");
       priceBox.className = "product-price-box";
 
@@ -227,7 +171,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       priceBox.append(price, originalPrice);
 
-      // Quick View button
       const quickButton = document.createElement("button");
       quickButton.className = "quick-view-button";
       quickButton.textContent = "Quick View";
@@ -236,7 +179,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         openQuickView(product);
       });
 
-      // Add to Cart button
       const addButton = document.createElement("button");
       addButton.className = "add-cart-button";
       addButton.textContent = "Add to Cart";
@@ -268,22 +210,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     searchProducts();
   }
 
-  // =====================================
-  // 7. QUICK VIEW
-  // =====================================
+  // 5. QUICK VIEW
 
   function openQuickView(product) {
 
-    if (!quickViewModal || !quickViewDetails) {
-      console.error("Quick View HTML elements not found.");
-      return;
-    }
+    if (!quickViewModal || !quickViewDetails) return;
 
     quickViewDetails.replaceChildren();
 
-    const image = document.createElement("img");
-    image.src = product.image;
-    image.alt = product.name;
+    if (product.image) {
+      const image = document.createElement("img");
+      image.src = product.image;
+      image.alt = product.name;
+      quickViewDetails.appendChild(image);
+    }
 
     const heading = document.createElement("h2");
     heading.textContent = product.name;
@@ -323,10 +263,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     quantityBox.append(minus, quantityDisplay, plus);
 
-    const addButton = document.createElement("button");
-    addButton.className = "add-cart-button";
-    addButton.textContent = "Add to Cart";
-
     let selectedQuantity = 1;
 
     minus.addEventListener("click", () => {
@@ -341,13 +277,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       quantityDisplay.textContent = selectedQuantity;
     });
 
+    const addButton = document.createElement("button");
+    addButton.className = "add-cart-button";
+    addButton.textContent = "Add to Cart";
+
     addButton.addEventListener("click", () => {
       addToCart(product, selectedQuantity);
       closeQuickView();
     });
 
     quickViewDetails.append(
-      image,
       heading,
       rating,
       price,
@@ -366,9 +305,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  const quickViewClose =
-    document.querySelector("#quick-view-close");
-
   if (quickViewClose) {
     quickViewClose.addEventListener("click", closeQuickView);
   }
@@ -381,9 +317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // =====================================
-  // 8. SAVE CART
-  // =====================================
+  // 6. SAVE CART
 
   function saveCart() {
     try {
@@ -392,13 +326,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         JSON.stringify(cart)
       );
     } catch (error) {
-      console.error("Unable to save cart:", error);
+      console.error("Cart saving error:", error);
     }
   }
 
-  // =====================================
-  // 9. ADD TO CART
-  // =====================================
+  // 7. ADD TO CART
 
   function addToCart(product, quantity = 1) {
 
@@ -411,32 +343,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       cart.push({
         ...product,
-        quantity: quantity
+        quantity
       });
     }
 
     renderCart();
   }
 
-  // =====================================
-  // 10. RENDER CART
-  // =====================================
+  // 8. RENDER CART
 
   function renderCart() {
 
     const totalQuantity = cart.reduce(
-      (sum, item) => sum + item.quantity,
-      0
+      (sum, item) => sum + item.quantity, 0
     );
 
     const totalPrice = cart.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
+      (sum, item) => sum + item.price * item.quantity, 0
     );
 
     if (cartCount) {
-      cartCount.textContent =
-        `Cart (${totalQuantity})`;
+      cartCount.textContent = `Cart (${totalQuantity})`;
     }
 
     if (cartTotal) {
@@ -455,7 +382,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const empty = document.createElement("p");
       empty.className = "empty-cart";
       empty.textContent = "Your cart is empty.";
-
       cartItems.appendChild(empty);
     }
 
@@ -464,16 +390,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       const row = document.createElement("div");
       row.className = "cart-product";
 
-      const image = document.createElement("img");
-      image.className = "cart-product-icon";
-      image.src = item.image || "";
-      image.alt = item.name;
-
-      image.style.width = "85px";
-      image.style.height = "85px";
-      image.style.objectFit = "contain";
-      image.style.borderRadius = "8px";
-      image.style.background = "#222";
+      if (item.image) {
+        const image = document.createElement("img");
+        image.className = "cart-product-icon";
+        image.src = item.image;
+        image.alt = item.name;
+        image.style.width = "85px";
+        image.style.height = "85px";
+        image.style.objectFit = "contain";
+        image.style.borderRadius = "8px";
+        image.style.background = "#222";
+        row.appendChild(image);
+      }
 
       const details = document.createElement("div");
       details.className = "cart-product-details";
@@ -490,7 +418,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const minus = document.createElement("button");
       minus.textContent = "−";
-
       minus.addEventListener("click", () => {
         changeQuantity(item.id, -1);
       });
@@ -500,7 +427,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const plus = document.createElement("button");
       plus.textContent = "+";
-
       plus.addEventListener("click", () => {
         changeQuantity(item.id, 1);
       });
@@ -508,30 +434,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       const remove = document.createElement("button");
       remove.className = "cart-remove";
       remove.textContent = "Remove";
-
       remove.addEventListener("click", () => {
         removeItem(item.id);
       });
 
       controls.append(minus, quantity, plus);
-
-      details.append(
-        name,
-        price,
-        controls,
-        remove
-      );
-
-      row.append(image, details);
+      details.append(name, price, controls, remove);
+      row.appendChild(details);
       cartItems.appendChild(row);
     });
 
     saveCart();
   }
 
-  // =====================================
-  // 11. CHANGE QUANTITY
-  // =====================================
+  // 9. CHANGE QUANTITY
 
   function changeQuantity(id, amount) {
 
@@ -551,9 +467,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderCart();
   }
 
-  // =====================================
-  // 12. REMOVE PRODUCT
-  // =====================================
+  // 10. REMOVE PRODUCT
 
   function removeItem(id) {
 
@@ -564,12 +478,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderCart();
   }
 
-  // =====================================
-  // 13. CART OPEN AND CLOSE
-  // =====================================
+  // 11. CART OPEN AND CLOSE
 
   function openCart() {
-
     if (!cartDrawer || !cartOverlay) return;
 
     cartDrawer.classList.add("active");
@@ -577,14 +488,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function closeCart() {
-
-    if (cartDrawer) {
-      cartDrawer.classList.remove("active");
-    }
-
-    if (cartOverlay) {
-      cartOverlay.classList.remove("active");
-    }
+    if (cartDrawer) cartDrawer.classList.remove("active");
+    if (cartOverlay) cartOverlay.classList.remove("active");
   }
 
   if (cartToggle) {
@@ -606,21 +511,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     continueShopping.addEventListener("click", closeCart);
   }
 
-  // =====================================
-  // 14. SEARCH PRODUCTS
-  // =====================================
+  // 12. SEARCH PRODUCTS
 
   function searchProducts() {
 
     if (!searchInput || !productGrid) return;
 
-    const query =
-      searchInput.value.trim().toLowerCase();
+    const query = searchInput.value.trim().toLowerCase();
 
-    const cards =
-      productGrid.querySelectorAll(".product-card");
-
-    cards.forEach(card => {
+    productGrid.querySelectorAll(".product-card").forEach(card => {
 
       const heading = card.querySelector("h3");
 
@@ -628,34 +527,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? heading.textContent.toLowerCase()
         : "";
 
-      card.style.display =
-        name.includes(query) ? "" : "none";
+      card.style.display = name.includes(query) ? "" : "none";
     });
   }
 
   if (searchInput) {
-    searchInput.addEventListener(
-      "input",
-      searchProducts
-    );
+    searchInput.addEventListener("input", searchProducts);
 
     searchInput.addEventListener("keydown", event => {
-      if (event.key === "Enter") {
-        searchProducts();
-      }
+      if (event.key === "Enter") searchProducts();
     });
   }
 
   if (searchButton) {
-    searchButton.addEventListener(
-      "click",
-      searchProducts
-    );
+    searchButton.addEventListener("click", searchProducts);
   }
 
-  // =====================================
-  // 15. CHECKOUT
-  // =====================================
+  // 13. CHECKOUT
 
   if (checkoutButton) {
     checkoutButton.addEventListener("click", () => {
@@ -665,29 +553,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      if (!auth.currentUser) {
+        alert("Please create an account or log in before checkout. Account setup is coming next.");
+        return;
+      }
+
       window.location.href = "checkout.html";
     });
   }
 
-  // =====================================
-  // 16. KEYBOARD CONTROLS
-  // =====================================
+  // 14. KEYBOARD CONTROLS
 
   document.addEventListener("keydown", event => {
-
     if (event.key === "Escape") {
       closeCart();
       closeQuickView();
     }
   });
 
-  // =====================================
-  // 17. INITIALIZE
-  // =====================================
+  // 15. INITIALIZE
 
   renderCart();
-
   await loadProducts();
 
 });
-  
+      
