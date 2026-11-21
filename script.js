@@ -1,6 +1,13 @@
 
 document.addEventListener("DOMContentLoaded", () => {
+const SUPABASE_URL = "https://vnfbxbwtvtwigijflbgl.supabase.co";
 
+const SUPABASE_KEY = "sb_publishable_oNf_99Vfv2vdyqgJ5lyRCA_UzPfETXV";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
   // =========================
   // 1. CART DATA
   // =========================
