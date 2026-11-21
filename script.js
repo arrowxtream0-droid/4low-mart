@@ -141,7 +141,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const details = document.querySelector("#quick-view-details");
 
       if (!modal || !details) return;
+const closeButton = document.querySelector("#quick-view-close");
 
+if (closeButton) {
+  closeButton.onclick = () => {
+    modal.classList.remove("active");
+  };
+}
       details.innerHTML = `
         <img src="${product.image}" alt="${product.name}">
         <h2>${product.name}</h2>
