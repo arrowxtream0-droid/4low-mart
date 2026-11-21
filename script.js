@@ -94,7 +94,7 @@ async function initializeStore() {
 
       products = snapshot.docs.map(doc => {
         const data = doc.data();
-
+alert("Firebase data: " + JSON.stringify(data));
         return {
           id: doc.id,
           name: data.name || "Unnamed Product",
