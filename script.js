@@ -212,17 +212,19 @@ modal.addEventListener("click", function(event) {
   // 6. ADD TO CART
   // =========================
 
-  function addToCart(product) {
+  
+function addToCart(product, quantity = 1) {
     const existing = cart.find(item => item.name === product.name);
 
     if (existing) {
-      existing.quantity++;
+      existing.quantity += quantity;
     } else {
-      cart.push({ ...product, quantity: 1 });
+      cart.push({ ...product, quantity: quantity });
     }
 
     renderCart();
-  }
+}
+  
 
   // =========================
   // 7. RENDER CART
