@@ -8,10 +8,8 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
-
-  // 1. PAGE ELEMENTS
-
+async function initializeStore() {
+  // PAGE ELEMENTS
   const productGrid = document.querySelector(".product-grid");
   const searchInput = document.querySelector(".search-box input");
   const searchButton = document.querySelector(".search-box button");
@@ -30,22 +28,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   const quickViewDetails = document.querySelector("#quick-view-details");
   const quickViewClose = document.querySelector("#quick-view-close");
 
-  // 2. CART DATA
-
+  let products = [];
   let cart = [];
 
+  // LOAD SAVED CART
   try {
     const savedCart = localStorage.getItem("4lowMartCart");
 
     if (savedCart) {
-      const parsedCart = JSON.parse(savedCart);
+      const parsed = JSON.parse(savedCart);
 
-      if (Array.isArray(parsedCart)) {
-        cart = parsedCart.filter(item =>
+      if (Array.isArray(parsed)) {
+        cart = parsed.filter(item =>
           item &&
           item.id !== undefined &&
           typeof item.name === "string" &&
           Number.isFinite(Number(item.price)) &&
+          Number(item.price) >= 0 &&
           Number.isFinite(Number(item.quantity)) &&
           Number(item.quantity) > 0
         ).map(item => ({
@@ -60,74 +59,85 @@ document.addEventListener("DOMContentLoaded", async () => {
     cart = [];
   }
 
-  let products = [];
+  function showProductMessage(message) {
+    if (!productGrid) return;
 
-  // 3. LOAD PRODUCTS FROM FIRESTORE
+    productGrid.replaceChildren();
 
+    const paragraph = document.createElement("p");
+    paragraph.textContent = message;
+
+    productGrid.appendChild(paragraph);
+  }
+
+  // LOAD PRODUCTS FROM FIRESTORE
   async function loadProducts() {
-
-    if (productGrid) {
-      productGrid.innerHTML =
-        "<p class='product-loading'>Loading products...</p>";
+    if (!productGrid) {
+      console.error("Product grid not found. Check index.html.");
+      return;
     }
 
+    showProductMessage("Loading products...");
+
     try {
+      console.log("Connecting to Firestore...");
+      console.log("Firebase project:", "low-mart-db7a0");
+
       const productsQuery = query(
         collection(db, "products"),
         where("active", "==", true)
       );
 
       const snapshot = await getDocs(productsQuery);
-alert("Firebase connected. Documents found: " + snapshot.size);
-      products = snapshot.docs.map(document => {
-        const data = document.data();
+
+      console.log("Firestore documents found:", snapshot.size);
+
+      products = snapshot.docs.map(doc => {
+        const data = doc.data();
 
         return {
-          id: document.id,
+          id: doc.id,
           name: data.name || "Unnamed Product",
-          price: Number(data.price) || 0,
+          price: Number(data.price ?? 0),
           originalPrice: Number(
-            data.original_price ?? data.price
-          ) || 0,
-          rating: Number(data.rating) || 0,
+            data.original_price ?? data.price ?? 0
+          ),
+          rating: Number(data.rating ?? 0),
           discount: data.discount || "",
           image: data.image || "",
           active: data.active
         };
-      }).filter(product =>
-        product.name &&
-        product.price > 0
-      );
+      });
+
+      console.log("Products loaded:", products);
+
+      if (products.length === 0) {
+        showProductMessage(
+          "Firebase connected, but no active products were found. Documents found: " +
+          snapshot.size
+        );
+        return;
+      }
 
       renderProducts();
 
     } catch (error) {
-      console.error("Firebase product loading error:", error);
+      console.error("FIREBASE ERROR:", error);
 
-      if (productGrid) {
-        productGrid.innerHTML =
-          "<p>Unable to load products. Please check your connection and refresh.</p>";
-      }
+      showProductMessage(
+        "Unable to load products. Error: " +
+        (error.code || error.message || "Unknown error")
+      );
     }
   }
 
-  // 4. RENDER PRODUCTS
-
+  // RENDER PRODUCTS
   function renderProducts() {
-
     if (!productGrid) return;
 
     productGrid.replaceChildren();
 
-    if (products.length === 0) {
-      const message = document.createElement("p");
-      message.textContent = "No products available right now.";
-      productGrid.appendChild(message);
-      return;
-    }
-
     products.forEach(product => {
-
       const card = document.createElement("div");
       card.className = "product-card";
 
@@ -185,7 +195,6 @@ alert("Firebase connected. Documents found: " + snapshot.size);
 
       addButton.addEventListener("click", () => {
         addToCart(product);
-
         addButton.textContent = "Added ✓";
         addButton.disabled = true;
 
@@ -210,10 +219,8 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     searchProducts();
   }
 
-  // 5. QUICK VIEW
-
+  // QUICK VIEW
   function openQuickView(product) {
-
     if (!quickViewModal || !quickViewDetails) return;
 
     quickViewDetails.replaceChildren();
@@ -263,18 +270,18 @@ alert("Firebase connected. Documents found: " + snapshot.size);
 
     quantityBox.append(minus, quantityDisplay, plus);
 
-    let selectedQuantity = 1;
+    let quantity = 1;
 
     minus.addEventListener("click", () => {
-      if (selectedQuantity > 1) {
-        selectedQuantity--;
-        quantityDisplay.textContent = selectedQuantity;
+      if (quantity > 1) {
+        quantity--;
+        quantityDisplay.textContent = quantity;
       }
     });
 
     plus.addEventListener("click", () => {
-      selectedQuantity++;
-      quantityDisplay.textContent = selectedQuantity;
+      quantity++;
+      quantityDisplay.textContent = quantity;
     });
 
     const addButton = document.createElement("button");
@@ -282,7 +289,7 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     addButton.textContent = "Add to Cart";
 
     addButton.addEventListener("click", () => {
-      addToCart(product, selectedQuantity);
+      addToCart(product, quantity);
       closeQuickView();
     });
 
@@ -317,8 +324,7 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     });
   }
 
-  // 6. SAVE CART
-
+  // SAVE CART
   function saveCart() {
     try {
       localStorage.setItem(
@@ -330,10 +336,8 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     }
   }
 
-  // 7. ADD TO CART
-
+  // ADD TO CART
   function addToCart(product, quantity = 1) {
-
     const existing = cart.find(item =>
       String(item.id) === String(product.id)
     );
@@ -350,16 +354,16 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     renderCart();
   }
 
-  // 8. RENDER CART
-
+  // RENDER CART
   function renderCart() {
-
     const totalQuantity = cart.reduce(
-      (sum, item) => sum + item.quantity, 0
+      (sum, item) => sum + item.quantity,
+      0
     );
 
     const totalPrice = cart.reduce(
-      (sum, item) => sum + item.price * item.quantity, 0
+      (sum, item) => sum + item.price * item.quantity,
+      0
     );
 
     if (cartCount) {
@@ -386,7 +390,6 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     }
 
     cart.forEach(item => {
-
       const row = document.createElement("div");
       row.className = "cart-product";
 
@@ -447,10 +450,8 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     saveCart();
   }
 
-  // 9. CHANGE QUANTITY
-
+  // CHANGE QUANTITY
   function changeQuantity(id, amount) {
-
     const item = cart.find(product =>
       String(product.id) === String(id)
     );
@@ -467,10 +468,8 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     renderCart();
   }
 
-  // 10. REMOVE PRODUCT
-
+  // REMOVE PRODUCT
   function removeItem(id) {
-
     cart = cart.filter(item =>
       String(item.id) !== String(id)
     );
@@ -478,8 +477,7 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     renderCart();
   }
 
-  // 11. CART OPEN AND CLOSE
-
+  // CART OPEN AND CLOSE
   function openCart() {
     if (!cartDrawer || !cartOverlay) return;
 
@@ -511,23 +509,19 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     continueShopping.addEventListener("click", closeCart);
   }
 
-  // 12. SEARCH PRODUCTS
-
+  // SEARCH
   function searchProducts() {
-
     if (!searchInput || !productGrid) return;
 
-    const query = searchInput.value.trim().toLowerCase();
+    const searchTerm = searchInput.value.trim().toLowerCase();
 
     productGrid.querySelectorAll(".product-card").forEach(card => {
-
       const heading = card.querySelector("h3");
-
       const name = heading
         ? heading.textContent.toLowerCase()
         : "";
 
-      card.style.display = name.includes(query) ? "" : "none";
+      card.style.display = name.includes(searchTerm) ? "" : "none";
     });
   }
 
@@ -543,18 +537,16 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     searchButton.addEventListener("click", searchProducts);
   }
 
-  // 13. CHECKOUT
-
+  // CHECKOUT
   if (checkoutButton) {
     checkoutButton.addEventListener("click", () => {
-
       if (cart.length === 0) {
         alert("Your cart is empty!");
         return;
       }
 
       if (!auth.currentUser) {
-        alert("Please create an account or log in before checkout. Account setup is coming next.");
+        alert("Please create an account or log in before checkout.");
         return;
       }
 
@@ -562,8 +554,7 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     });
   }
 
-  // 14. KEYBOARD CONTROLS
-
+  // KEYBOARD CONTROLS
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
       closeCart();
@@ -571,10 +562,14 @@ alert("Firebase connected. Documents found: " + snapshot.size);
     }
   });
 
-  // 15. INITIALIZE
-
+  // INITIALIZE
   renderCart();
   await loadProducts();
+}
 
-});
-      
+// START AFTER HTML IS READY
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeStore);
+} else {
+  initializeStore();
+  }
